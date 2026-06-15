@@ -1,0 +1,19 @@
+# Build
+/build/
+/out/
+*.o
+*.a
+*.so
+*.dylib
+cmake-build-*/
+
+# Demo artifacts
+*.pgm
+learning_curve.csv
+cmp_*.csv
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+compile_commands.json
