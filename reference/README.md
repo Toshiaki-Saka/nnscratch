@@ -1,15 +1,15 @@
-# Reference implementations
+# Reference notes
 
-These are the original numpy / PyTorch / TensorFlow scripts that nnscratch was
-ported from, kept here for provenance and side-by-side study. They are **not**
-built or required by the C++ library; they only need a Python environment.
+nnscratch is a faithful C++ port of a numpy teaching implementation of an
+MLP/CNN. **The C++ library in this repository *is* the reference** — every
+`forward()` / `backward()` is written out by hand so you can read exactly what
+a framework's autograd would otherwise hide.
 
-- `deeplearning_from_scratch.py` — numpy MLP, the basis for the `from_scratch` demo.
-- `dl_compare.py` — numpy componentised framework, the basis for the `compare` demo.
-- `pytorch_equivalent.py` / `tensorflow_equivalent.py` — the same experiments in
-  each framework, showing what `backward()` and the optimizers map to.
+How each piece maps to the mainstream frameworks (numpy, PyTorch, TensorFlow)
+is documented as a side-by-side table in the top-level
+[`README.md`](../README.md#numpy--c--framework-correspondence) — for example,
+what `Dense::backward` corresponds to in `torch.nn.Linear`'s autograd.
 
-```bash
-pip install numpy matplotlib scikit-learn
-python deeplearning_from_scratch.py
-```
+> Standalone numpy / PyTorch / TensorFlow reference *scripts* are **not bundled**
+> in this release; the correspondence table above is the canonical cross-framework
+> reference.

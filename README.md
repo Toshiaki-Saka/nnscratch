@@ -1,5 +1,9 @@
 # nnscratch
 
+<!-- On publish, replace <OWNER> with the GitHub account/org and uncomment the CI badge. -->
+<!-- [![CI](https://github.com/<OWNER>/nnscratch/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/nnscratch/actions/workflows/ci.yml) -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A tiny neural-network library written **from scratch in modern C++ (C++20)** —
 no BLAS, no Eigen, no framework, no third-party runtime dependencies. It is a
 faithful port of a numpy teaching project: you can read every line of the
@@ -11,10 +15,17 @@ go from random guessing to reading handwritten digits, and so the math of
 backpropagation is never a black box.
 
 ```
-Untrained test accuracy: 8.6%   (~10% = random for 10 classes)
+Untrained test accuracy:  ~5–9%   (≈10% = random for 10 classes)
 ...
-Final test accuracy:    97.2%
+Final test accuracy:     ~97–98%
 ```
+
+Reproduce with `./build/from_scratch` (the dataset is bundled; no flags needed).
+The run is deterministic for a given toolchain, but the exact figures vary by a
+few tenths of a percent across compilers/OSes — the standard library's random
+*distributions* (`std::shuffle`, `std::uniform_real_distribution`) are not
+specified to produce identical sequences from the same seed across STL
+implementations. A representative MSVC run gives 5.3% → 97.8%.
 
 ## Why this exists
 
@@ -124,7 +135,7 @@ src/                 implementations
 apps/                from_scratch.cpp, compare.cpp  (the two demos)
 tests/               tensor / gradient-check / optimizer tests (CTest)
 data/digits.csv      bundled dataset
-reference/           the original numpy/PyTorch/TensorFlow scripts (provenance)
+reference/           notes on the numpy/PyTorch/TensorFlow correspondence
 docs/                design notes
 ```
 
