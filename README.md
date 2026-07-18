@@ -63,6 +63,14 @@ Run the demos:
 ./build/compare               # Part 2: optimizer / activation / architecture comparison
 ```
 
+On Windows, `run_demo.ps1` (PowerShell 7+) does the whole thing in one command —
+build, `ctest`, then the two demos with animated progress bars and ASCII charts:
+
+```powershell
+.\run_demo.ps1              # full run
+.\run_demo.ps1 -SkipBuild   # skip the build/test step and just run the demos
+```
+
 Each demo accepts optional arguments: `from_scratch [digits.csv] [output_dir]`.
 They emit a learning-curve CSV and grayscale `.pgm` images of the learned
 weights/filters — visualization is intentionally left to the consumer (plot the
@@ -136,7 +144,9 @@ apps/                from_scratch.cpp, compare.cpp  (the two demos)
 tests/               tensor / gradient-check / optimizer tests (CTest)
 data/digits.csv      bundled dataset
 reference/           notes on the numpy/PyTorch/TensorFlow correspondence
-docs/                design notes
+docs_en/             design & experiment notes (English)
+docs_ja/             the same design & experiment notes (Japanese)
+run_demo.ps1         Windows demo runner (build + test + animated demos)
 ```
 
 ## License

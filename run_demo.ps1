@@ -1,24 +1,24 @@
 #Requires -Version 7.0
 <#
 .SYNOPSIS
-    nnscratch をビルドし、学習シミュレーションとアニメーションを実行する。
+    Build nnscratch and run the training simulation with animation.
 .DESCRIPTION
-    1. CMake でビルド
-    2. ctest でテスト実行
-    3. from_scratch デモ: エポックごとにリアルタイムプログレスバーをアニメーション表示
-    4. 学習曲線を ASCII チャートで可視化
-    5. compare デモ: オプティマイザ / 活性化関数 / アーキテクチャ比較
-    6. 比較結果をバーチャートで表示
+    1. Build with CMake
+    2. Run the tests with ctest
+    3. from_scratch demo: animate a real-time progress bar for each epoch
+    4. Visualize the learning curve as an ASCII chart
+    5. compare demo: optimizer / activation / architecture comparison
+    6. Show the comparison results as a bar chart
 .PARAMETER BuildType
-    CMake ビルドタイプ (Release / Debug)。デフォルト: Release
+    CMake build type (Release / Debug). Default: Release
 .PARAMETER BuildDir
-    ビルドディレクトリ名。デフォルト: build
+    Build directory name. Default: build
 .PARAMETER OutDir
-    デモ出力（CSV, PGM）ディレクトリ名。デフォルト: output
+    Demo output (CSV, PGM) directory name. Default: output
 .PARAMETER SkipBuild
-    ビルドをスキップしてデモのみ実行する。
+    Skip the build and run only the demos.
 .PARAMETER SkipTests
-    ctest をスキップする。
+    Skip ctest.
 .EXAMPLE
     .\run_demo.ps1
 .EXAMPLE
@@ -36,8 +36,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── ANSI / コンソール初期化 ───────────────────────────────────────────────────
-# Windows 11 の VT100 サポートを有効化
+# ── ANSI / console initialization ─────────────────────────────────────────────
+# Enable VT100 support on Windows 11
 if ($IsWindows) {
     $null = [System.Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     Add-Type -MemberDefinition @"
@@ -71,11 +71,11 @@ $Red     = C "31"
 $Blue    = C "34"
 $White   = C "97"
 
-# カーソル移動
+# Cursor movement
 function Up($n)    { "${ESC}[${n}A" }
 function ClearLine { "${ESC}[2K`r" }
 
-# ── ユーティリティ ────────────────────────────────────────────────────────────
+# ── Utilities ─────────────────────────────────────────────────────────────────
 function Write-Color {
     param([string]$Text, [string]$Color = $White, [switch]$NoNewLine)
     if ($NoNewLine) { Write-Host -NoNewline "${Color}${Text}${Reset}" }
@@ -107,7 +107,7 @@ function Acc-Color {
     return $Cyan
 }
 
-# ── スピナー (バックグラウンドジョブ) ────────────────────────────────────────
+# ── Spinner (background job) ───────────────────────────────────────────────────
 $script:SpinnerActive = $false
 $script:SpinnerJob    = $null
 
@@ -137,11 +137,11 @@ function Stop-Spinner {
     [System.Console]::Write("`r$(' ' * 60)`r")
 }
 
-# ── CMake / ビルド ────────────────────────────────────────────────────────────
+# ── CMake / build ──────────────────────────────────────────────────────────────
 function Assert-Cmake {
     $cmake = Get-Command cmake -ErrorAction SilentlyContinue
     if (-not $cmake) {
-        Write-Color "  ERROR: cmake が見つかりません。CMake をインストールして PATH に追加してください。" $Red
+        Write-Color "  ERROR: cmake not found. Install CMake and add it to PATH." $Red
         exit 1
     }
     return $cmake.Source
@@ -150,7 +150,7 @@ function Assert-Cmake {
 function Build-Project {
     param([string]$SrcDir, [string]$BldDir, [string]$Type)
 
-    Write-Header "ビルド (CMake)" "🔨"
+    Write-Header "Build (CMake)" "🔨"
 
     $cmake = Assert-Cmake
     Write-Color "  cmake  : $cmake" $Dim
@@ -160,18 +160,18 @@ function Build-Project {
 
     Write-Color "  Configure..." $Yellow
     & $cmake -S $SrcDir -B $BldDir -DCMAKE_BUILD_TYPE=$Type
-    if ($LASTEXITCODE -ne 0) { Write-Color "  ERROR: cmake configure 失敗" $Red; exit 1 }
+    if ($LASTEXITCODE -ne 0) { Write-Color "  ERROR: cmake configure failed" $Red; exit 1 }
 
     Write-Host ""
     Write-Color "  Build..." $Yellow
     & $cmake --build $BldDir --config $Type
-    if ($LASTEXITCODE -ne 0) { Write-Color "  ERROR: cmake build 失敗" $Red; exit 1 }
+    if ($LASTEXITCODE -ne 0) { Write-Color "  ERROR: cmake build failed" $Red; exit 1 }
 
     Write-Host ""
-    Write-Color "  ✓ ビルド成功" $Green
+    Write-Color "  ✓ Build succeeded" $Green
 }
 
-# ── 実行ファイル検索 ──────────────────────────────────────────────────────────
+# ── Executable lookup ──────────────────────────────────────────────────────────
 function Find-Exe {
     param([string]$BldDir, [string]$Name, [string]$Type)
     foreach ($sub in @($Type, "Release", "Debug", "")) {
@@ -184,33 +184,33 @@ function Find-Exe {
             if (Test-Path $candidate) { return $candidate }
         }
     }
-    Write-Color "  ERROR: $Name 実行ファイルが $BldDir に見つかりません" $Red
+    Write-Color "  ERROR: $Name executable not found in $BldDir" $Red
     exit 1
 }
 
-# ── テスト ─────────────────────────────────────────────────────────────────────
+# ── Tests ──────────────────────────────────────────────────────────────────────
 function Run-Tests {
     param([string]$BldDir, [string]$Type)
-    Write-Header "テスト (ctest)" "🧪"
+    Write-Header "Tests (ctest)" "🧪"
     & ctest --test-dir $BldDir -C $Type --output-on-failure
     if ($LASTEXITCODE -ne 0) {
-        Write-Color "  ✗ テストに失敗があります" $Red
+        Write-Color "  ✗ Some tests failed" $Red
     } else {
-        Write-Color "  ✓ 全テスト通過" $Green
+        Write-Color "  ✓ All tests passed" $Green
     }
 }
 
-# ── from_scratch アニメーション ───────────────────────────────────────────────
+# ── from_scratch animation ─────────────────────────────────────────────────────
 function Run-FromScratch {
     param([string]$ExePath, [string]$CsvPath, [string]$OutputDir)
 
-    Write-Header "Part 1 — from_scratch : ランダム → 学習済み MLP" "🧠"
+    Write-Header "Part 1 — from_scratch : random → trained MLP" "🧠"
 
     $totalEpochs  = 60
-    $drewBars     = $false   # 前フレームが描画済みか
-    $barLines     = 5        # 描画する行数
+    $drewBars     = $false   # whether the previous frame was drawn
+    $barLines     = 5        # number of lines to draw
 
-    # エポック行の正規表現
+    # Regex for the epoch line
     $epochRx = [regex]'epoch\s+(\d+)\s*\|\s*loss\s+([\d.]+)\s*\|\s*train_acc\s+([\d.]+)%\s*\|\s*test_acc\s+([\d.]+)%'
 
     & $ExePath $CsvPath $OutputDir 2>&1 | ForEach-Object {
@@ -232,12 +232,12 @@ function Run-FromScratch {
             $sc = Acc-Color $testAcc
             $pc = if ($pct -ge 0.5) { $Green } else { $Cyan }
 
-            # 前のバーを上書き
+            # Overwrite the previous bars
             if ($drewBars) {
                 Write-Host -NoNewline (Up $barLines)
             }
 
-            # ─── プログレス表示（$barLines 行） ───
+            # ─── Progress display ($barLines lines) ───
             Write-Host "$(ClearLine)  ${Bold}Epoch $("{0,3}" -f $ep) / ${totalEpochs}${Reset}  [${pc}${pBar}${Reset}]  Loss: ${Cyan}$($loss.ToString('F4'))${Reset}"
             Write-Host "$(ClearLine)  Train  [${tc}${trainBar}${Reset}] ${tc}$($m.Groups[3].Value)%${Reset}"
             Write-Host "$(ClearLine)  Test   [${sc}${testBar}${Reset}] ${sc}$($m.Groups[4].Value)%${Reset}"
@@ -247,12 +247,12 @@ function Run-FromScratch {
             $drewBars = $true
         }
         elseif ($line -match 'Untrained test accuracy:\s*([\d.]+)') {
-            Write-Host "  ${Yellow}初期精度 (未学習): $($Matches[1])%${Reset}  ← ランダム予測とほぼ同じ"
+            Write-Host "  ${Yellow}Initial accuracy (untrained): $($Matches[1])%${Reset}  ← about the same as random guessing"
             Write-Host ""
         }
         elseif ($line -match 'Final test accuracy:\s*([\d.]+)') {
             Write-Host ""
-            Write-Color "  ✓ 最終テスト精度: $($Matches[1])%" $Green
+            Write-Color "  ✓ Final test accuracy: $($Matches[1])%" $Green
         }
         elseif ($line -match 'Wrote:') {
             Write-Color "  $line" $Dim
@@ -261,7 +261,7 @@ function Run-FromScratch {
             Write-Color "  $line" $Yellow
         }
         elseif ($line -match '^={3,}|^[-]{3,}') {
-            # セクション区切り — スキップ
+            # Section separator — skip
         }
         elseif ($line.Trim() -ne '') {
             Write-Host "  $line"
@@ -269,7 +269,7 @@ function Run-FromScratch {
     }
 }
 
-# ── 学習曲線 ASCII チャート ───────────────────────────────────────────────────
+# ── Learning-curve ASCII chart ─────────────────────────────────────────────────
 function Show-LearningCurve {
     param([string]$CsvPath)
 
@@ -277,7 +277,7 @@ function Show-LearningCurve {
     $rows = Import-Csv $CsvPath
     if ($rows.Count -lt 2) { return }
 
-    Write-Header "学習曲線 (Test Accuracy)" "📈"
+    Write-Header "Learning curve (Test Accuracy)" "📈"
 
     $testAccs = $rows | ForEach-Object { [double]$_.test_acc }
     $losses   = $rows | ForEach-Object { [double]$_.train_loss }
@@ -288,7 +288,7 @@ function Show-LearningCurve {
     $step   = [Math]::Max(1, [int][Math]::Ceiling($rows.Count / $chartW))
     $idxs   = for ($i = 0; $i -lt $rows.Count; $i += $step) { $i }
 
-    # テスト精度チャート
+    # Test-accuracy chart
     Write-Host "  ${Dim}Test Accuracy${Reset}"
     for ($row = $chartH; $row -ge 0; $row--) {
         $thresh = $row / $chartH
@@ -312,7 +312,7 @@ function Show-LearningCurve {
     Write-Host "       0${midPad}epoch${midPad}$($epochs[-1])"
     Write-Host ""
 
-    # ロスチャート
+    # Loss chart
     $maxLoss = ($losses | Measure-Object -Maximum).Maximum
     Write-Host "  ${Dim}Training Loss${Reset}"
     for ($row = $chartH; $row -ge 0; $row--) {
@@ -338,14 +338,15 @@ function Show-LearningCurve {
     Write-Host ""
 }
 
-# ── compare デモ ──────────────────────────────────────────────────────────────
+# ── compare demo ───────────────────────────────────────────────────────────────
 function Run-Compare {
     param([string]$ExePath, [string]$CsvPath, [string]$OutputDir)
 
-    Write-Header "Part 2 — compare : オプティマイザ / 活性化関数 / アーキテクチャ" "⚡"
+    Write-Header "Part 2 — compare : optimizer / activation / architecture" "⚡"
 
-    # compare は verbose=false なので、実験終了後に結果テーブルだけ出力される。
-    # スピナー表示用にバックグラウンドで exe を実行し、出力をキャプチャする。
+    # compare runs with verbose=false, so only the result table is printed after
+    # the experiments finish. Run the exe in the background to show a spinner,
+    # capturing its output.
 
     $tmpOut = Join-Path $OutputDir "_compare_out.txt"
     $proc = Start-Process -FilePath $ExePath `
@@ -355,7 +356,7 @@ function Run-Compare {
                           -NoNewWindow `
                           -PassThru
 
-    # スピナー (各実験がどれくらいかを示す進捗)
+    # Spinner (progress indicating roughly how far each experiment is)
     $spinFrames  = @("⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏")
     $expNames    = @("Experiment 1: Optimizers (SGD / Momentum / Adam) [40 epochs × 3]",
                      "Experiment 2: Activations (ReLU / Tanh / Sigmoid) [40 epochs × 3]",
@@ -367,12 +368,12 @@ function Run-Compare {
     while (-not $proc.HasExited) {
         $f = $spinFrames[$frame % $spinFrames.Count]
 
-        # 出力ファイルの行数で実験進捗を推定
+        # Estimate experiment progress from the output file's line count
         $linesNow = 0
         if (Test-Path $tmpOut) {
             $linesNow = (Get-Content $tmpOut -ErrorAction SilentlyContinue | Measure-Object -Line).Lines
         }
-        # 各実験後に print_table が数行出力される
+        # print_table emits a few lines after each experiment
         $expIdx = [Math]::Min(2, [int]($linesNow / 8))
 
         $expMsg = $expNames[[Math]::Min($expIdx, 2)]
@@ -381,9 +382,9 @@ function Run-Compare {
         Start-Sleep -Milliseconds 80
         $frame++
     }
-    Write-Host -NoNewline "`r$(' ' * 80)`r"  # スピナー消去
+    Write-Host -NoNewline "`r$(' ' * 80)`r"  # clear the spinner
 
-    # 出力をパース＆カラー表示
+    # Parse the output and print it in color
     $tableRx  = [regex]'^\s*(\S+)\s+([\d.]+)%\s+([\d.]+)%\s+(.+)$'
     $headerRx = [regex]'name\s+final'
     $expRx    = [regex]'=== Experiment (\d+):'
@@ -418,12 +419,12 @@ function Run-Compare {
         }
     }
 
-    # 一時エラーファイル除去
+    # Remove the temporary error file
     Remove-Item "$OutputDir\_compare_err.txt" -ErrorAction SilentlyContinue
     Remove-Item $tmpOut -ErrorAction SilentlyContinue
 }
 
-# ── 比較バーチャート ──────────────────────────────────────────────────────────
+# ── Comparison bar chart ───────────────────────────────────────────────────────
 function Show-CompareChart {
     param([string]$CsvPath, [string]$Title)
 
@@ -451,7 +452,7 @@ function Show-CompareChart {
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
-# メイン
+# Main
 # ══════════════════════════════════════════════════════════════════════════════
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -459,12 +460,12 @@ $BldPath   = Join-Path $ScriptDir $BuildDir
 $OutPath   = Join-Path $ScriptDir $OutDir
 $DataCsv   = Join-Path $ScriptDir "data\digits.csv"
 
-# ── バナー ─────────────────────────────────────────────────────────────────────
+# ── Banner ─────────────────────────────────────────────────────────────────────
 Clear-Host
 Write-Host ""
 Write-Color "  ╔══════════════════════════════════════════════════════════════════╗" $Cyan
 Write-Color "  ║                                                                  ║" $Cyan
-Write-Color "  ║   nnscratch  —  C++20 ニューラルネット デモランナー             ║" $Cyan
+Write-Color "  ║   nnscratch  —  C++20 neural-net demo runner                     ║" $Cyan
 Write-Color "  ║                                                                  ║" $Cyan
 Write-Color "  ╚══════════════════════════════════════════════════════════════════╝" $Cyan
 Write-Host ""
@@ -473,50 +474,50 @@ Write-Color "  Build   : $BldPath  [$BuildType]" $Dim
 Write-Color "  Output  : $OutPath" $Dim
 Write-Host ""
 
-# 出力ディレクトリ作成
+# Create the output directory
 if (-not (Test-Path $OutPath)) { New-Item -ItemType Directory -Path $OutPath | Out-Null }
 
-# 1. ビルド
+# 1. Build
 if (-not $SkipBuild) {
     Build-Project -SrcDir $ScriptDir -BldDir $BldPath -Type $BuildType
 }
 
-# 2. テスト
+# 2. Test
 if (-not $SkipTests) {
     Run-Tests -BldDir $BldPath -Type $BuildType
 }
 
-# 3. 実行ファイル探索
+# 3. Locate the executables
 $fsExe  = Find-Exe $BldPath "from_scratch" $BuildType
 $cmpExe = Find-Exe $BldPath "compare"      $BuildType
 Write-Color "  from_scratch : $fsExe" $Dim
 Write-Color "  compare      : $cmpExe" $Dim
 Write-Host ""
-Read-Host "  Enter キーを押してデモを開始します"
+Read-Host "  Press Enter to start the demo"
 
-# 4. from_scratch デモ (リアルタイムアニメーション)
+# 4. from_scratch demo (real-time animation)
 Run-FromScratch -ExePath $fsExe -CsvPath $DataCsv -OutputDir $OutPath
 
-# 5. 学習曲線 ASCII チャート
+# 5. Learning-curve ASCII chart
 Show-LearningCurve -CsvPath (Join-Path $OutPath "learning_curve.csv")
 
-Read-Host "  Enter キーで比較実験を開始します"
+Read-Host "  Press Enter to start the comparison experiments"
 
-# 6. compare デモ (スピナー → 結果カラー表示)
+# 6. compare demo (spinner → colored results)
 Run-Compare -ExePath $cmpExe -CsvPath $DataCsv -OutputDir $OutPath
 
-# 7. 比較サマリーチャート
-Write-Header "比較サマリー" "📊"
+# 7. Comparison summary chart
+Write-Header "Comparison summary" "📊"
 Show-CompareChart (Join-Path $OutPath "cmp_optimizers.csv")   "Optimizers"
 Show-CompareChart (Join-Path $OutPath "cmp_activations.csv")  "Activations"
 Show-CompareChart (Join-Path $OutPath "cmp_architecture.csv") "Architectures"
 
 Write-Host ""
-Write-Color "  ✓ 完了。出力ファイル: $OutPath" $Green
-Write-Color "    - learning_curve.csv   (from_scratch 学習曲線)" $Dim
-Write-Color "    - learned_features.pgm (第1層の重みビジュアル)" $Dim
-Write-Color "    - cmp_optimizers.csv   (オプティマイザ比較)" $Dim
-Write-Color "    - cmp_activations.csv  (活性化関数比較)" $Dim
-Write-Color "    - cmp_architecture.csv (アーキテクチャ比較)" $Dim
-Write-Color "    - cnn_filters.pgm      (CNN フィルタビジュアル)" $Dim
+Write-Color "  ✓ Done. Output files: $OutPath" $Green
+Write-Color "    - learning_curve.csv   (from_scratch learning curve)" $Dim
+Write-Color "    - learned_features.pgm (first-layer weight visualization)" $Dim
+Write-Color "    - cmp_optimizers.csv   (optimizer comparison)" $Dim
+Write-Color "    - cmp_activations.csv  (activation comparison)" $Dim
+Write-Color "    - cmp_architecture.csv (architecture comparison)" $Dim
+Write-Color "    - cnn_filters.pgm      (CNN filter visualization)" $Dim
 Write-Host ""
