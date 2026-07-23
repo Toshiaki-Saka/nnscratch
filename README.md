@@ -1,7 +1,6 @@
 # nnscratch
 
-<!-- On publish, replace <OWNER> with the GitHub account/org and uncomment the CI badge. -->
-<!-- [![CI](https://github.com/<OWNER>/nnscratch/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/nnscratch/actions/workflows/ci.yml) -->
+[![CI](https://github.com/Toshiaki-Saka/nnscratch/actions/workflows/ci.yml/badge.svg)](https://github.com/Toshiaki-Saka/nnscratch/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 A tiny neural-network library written **from scratch in modern C++ (C++20)** —
