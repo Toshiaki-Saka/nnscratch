@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 # Each test is a standalone executable registered with CTest. The harness
 # signals failure through the process exit code, so no test framework is needed.
 

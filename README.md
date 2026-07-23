@@ -2,7 +2,7 @@
 
 <!-- On publish, replace <OWNER> with the GitHub account/org and uncomment the CI badge. -->
 <!-- [![CI](https://github.com/<OWNER>/nnscratch/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/nnscratch/actions/workflows/ci.yml) -->
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 A tiny neural-network library written **from scratch in modern C++ (C++20)** —
 no BLAS, no Eigen, no framework, no third-party runtime dependencies. It is a
@@ -151,7 +151,7 @@ run_demo.ps1         Windows demo runner (build + test + animated demos)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Apache-2.0 — see [LICENSE](LICENSE).
 
 ## Acknowledgements
 

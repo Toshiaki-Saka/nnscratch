@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 nnscratch contributors
 //
 // Part 2 — compare algorithmic choices on the same data and the same starting
