@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) 2026 nnscratch contributors
+// Copyright (c) 2026 Toshiaki Saka
 //
 // Part 1 — "untrained -> trained": watch a 3-layer MLP go from random guessing
 // to reading 8x8 handwritten digits, implemented entirely with this library.

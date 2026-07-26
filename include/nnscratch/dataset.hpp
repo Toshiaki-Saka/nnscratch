@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) 2026 nnscratch contributors
+// Copyright (c) 2026 Toshiaki Saka
 #ifndef NNSCRATCH_DATASET_HPP
 #define NNSCRATCH_DATASET_HPP
 

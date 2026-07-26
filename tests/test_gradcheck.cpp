@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) 2026 nnscratch contributors
+// Copyright (c) 2026 Toshiaki Saka
 //
 // The central correctness test for the whole library: for every learnable
 // parameter, the analytic gradient produced by backward() must match a

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) 2026 nnscratch contributors
+// Copyright (c) 2026 Toshiaki Saka
 //
 // nnscratch — a tiny, dependency-free neural network library written from
 // scratch in modern C++. Include this single header to pull in the whole

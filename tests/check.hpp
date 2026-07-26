@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) 2026 nnscratch contributors
+// Copyright (c) 2026 Toshiaki Saka
 //
 // A deliberately tiny test harness: no external dependency, integrates with
 // CTest via the process exit code (0 = pass, non-zero = fail count).

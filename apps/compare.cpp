@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (c) 2026 nnscratch contributors
+// Copyright (c) 2026 Toshiaki Saka
 //
 // Part 2 — compare algorithmic choices on the same data and the same starting
 // weights, varying one axis at a time:
