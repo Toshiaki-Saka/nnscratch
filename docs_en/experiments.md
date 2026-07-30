@@ -153,7 +153,9 @@ gradient of $1$ in the positive region, so it resists vanishing.
 In each function's $\text{backward}$, the upstream gradient $g$ is multiplied by
 the following.
 
-$$\text{ReLU}': \quad \frac{\partial}{\partial x}\max(0,x) = \begin{cases} 1 & (x > 0) \\ 0 & (x \le 0) \end{cases}$$
+```math
+\text{ReLU}': \quad \frac{\partial}{\partial x}\max(0,x) = \begin{cases} 1 & (x > 0) \\ 0 & (x \le 0) \end{cases}
+```
 
 $$\text{Tanh}': \quad \frac{d}{dx}\tanh(x) = 1 - \tanh^2(x)$$
 

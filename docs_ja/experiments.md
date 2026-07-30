@@ -144,7 +144,9 @@ ReLU は正の領域で勾配が $1$ のまま伝わるため消失しにくい�
 
 各関数の $\text{backward}$ では、上流から来た勾配 $g$ に対して以下を掛ける。
 
-$$\text{ReLU}': \quad \frac{\partial}{\partial x}\max(0,x) = \begin{cases} 1 & (x > 0) \\ 0 & (x \le 0) \end{cases}$$
+```math
+\text{ReLU}': \quad \frac{\partial}{\partial x}\max(0,x) = \begin{cases} 1 & (x > 0) \\ 0 & (x \le 0) \end{cases}
+```
 
 $$\text{Tanh}': \quad \frac{d}{dx}\tanh(x) = 1 - \tanh^2(x)$$
 
