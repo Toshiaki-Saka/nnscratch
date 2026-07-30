@@ -53,7 +53,7 @@ Adam は「Momentum の速度を 2 本に増やし、勾配の大きさでも正
 
 $$p \leftarrow p - \eta \cdot g$$
 
-$p$：パラメータ（重み）、$g$：勾配、$\eta$：学習率
+$p$：パラメータ（重み）、 $g$：勾配、 $\eta$：学習率
 
 ---
 
@@ -63,7 +63,7 @@ $$v \leftarrow \mu v - \eta \cdot g$$
 
 $$p \leftarrow p + v$$
 
-$v$：速度（前ステップの進行方向を引き継ぐ）、$\mu$：慣性係数（通常 $0.9$）
+$v$：速度（前ステップの進行方向を引き継ぐ）、 $\mu$：慣性係数（通常 $0.9$）
 
 ---
 
@@ -77,7 +77,7 @@ $$\hat{m} = \frac{m}{1 - \beta_1^t}, \qquad \hat{v} = \frac{v}{1 - \beta_2^t}$$
 
 $$p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}$$
 
-$t$：ステップ数、$\beta_1 = 0.9$、$\beta_2 = 0.999$、$\varepsilon = 10^{-8}$
+$t$：ステップ数、 $\beta_1 = 0.9$、 $\beta_2 = 0.999$、 $\varepsilon = 10^{-8}$
 
 $\hat{m}$, $\hat{v}$ はバイアス補正項（初期ステップでモーメントが 0 に引っ張られることを補う）。
 
@@ -302,12 +302,12 @@ PyTorch には `dampening` オプションがあり初回ステップの挙動�
 |---|---|---|---|
 | ① 自動微分の有無 | ○ | ○ | ○ |
 | ② float64 vs float32 | ○ | ○ | ○ |
-| ③ 内部式の微妙な差 | **なし** | ○（式の形が異なる） | △（$\varepsilon$ の適用位置が異なる） |
+| ③ 内部式の微妙な差 | **なし** | ○（式の形が異なる） | △（$`\varepsilon`$ の適用位置が異なる） |
 | ④ 付随機能 | weight_decay / clipping | 同左 | + AMSGrad |
 
 **SGD に③の差がない理由**：状態（速度・モーメント）を持たないため実装の揺れようがない。
 
-**Adam の③について**：骨格とデフォルト値（$\beta_1=0.9,\;\beta_2=0.999,\;\varepsilon=10^{-8}$）は揃っているが、$\varepsilon$ の適用位置が異なる。
+**Adam の③について**：骨格とデフォルト値（$`\beta_1=0.9,\;\beta_2=0.999,\;\varepsilon=10^{-8}`$）は揃っているが、 $\varepsilon$ の適用位置が異なる。
 
 $$\text{nnscratch / 論文 / TF}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}$$
 
