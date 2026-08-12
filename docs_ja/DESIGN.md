@@ -1,6 +1,9 @@
 # 設計ノート
 
 このドキュメントは、nnscratch における自明でないいくつかの設計判断を説明する。
+ここで扱うのは *なぜ* であり、*どう* 組み合わさっているかは
+[ARCHITECTURE.md](ARCHITECTURE.md)、各 `backward()` の導出は
+[MATH.md](MATH.md) を参照。索引は [README.md](README.md) にある。
 
 ## 単一の `Tensor` 型
 

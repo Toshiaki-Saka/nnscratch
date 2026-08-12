@@ -140,9 +140,9 @@ initial weights, and swaps only the activation function.
 
 | Function | Formula | Output range | Characteristics |
 |---|---|---|---|
-| **ReLU** | $\max(0,\, x)$ | $[0,\, +\infty)$ | Resistant to vanishing gradients. The modern mainstream |
-| **Tanh** | $\dfrac{e^x - e^{-x}}{e^x + e^{-x}}$ | $(-1,\, +1)$ | Zero-centered output. Larger gradient than Sigmoid |
-| **Sigmoid** | $\dfrac{1}{1 + e^{-x}}$ | $(0,\, 1)$ | Prone to vanishing gradients in deep networks |
+| **ReLU** | $\max(0, x)$ | $[0, +\infty)$ | Resistant to vanishing gradients. The modern mainstream |
+| **Tanh** | $\dfrac{e^x - e^{-x}}{e^x + e^{-x}}$ | $(-1, +1)$ | Zero-centered output. Larger gradient than Sigmoid |
+| **Sigmoid** | $\dfrac{1}{1 + e^{-x}}$ | $(0, 1)$ | Prone to vanishing gradients in deep networks |
 
 **Vanishing gradients**: Sigmoid's maximum gradient is only $\frac{1}{4}$, so the
 error signal attenuates with each layer it propagates back through. ReLU keeps a
@@ -201,7 +201,7 @@ Fix the optimizer to Adam and vary only the "shape" of the network.
 |---|---|---|
 | **Shallow (no hidden layer)** | $64 \to 10$ | Linear boundaries only. Equivalent to logistic regression |
 | **Deep MLP** | $64 \to 64 \to 32 \to 10$ | Can learn complex patterns via non-linear transforms |
-| **CNN** | $\text{Conv}(1 \to 8,\; 3\times3) \to \text{Flatten} \to \text{Dense}(10)$ | Captures local image patterns (edges, curves) |
+| **CNN** | $\text{Conv}(1 \to 8, 3\times3) \to \text{Flatten} \to \text{Dense}(10)$ | Captures local image patterns (edges, curves) |
 
 **MLP vs CNN difference**:
 
@@ -324,7 +324,7 @@ does not).
 **Why SGD has no difference (3)**: it holds no state (velocity or moment), so
 there is no room for implementation variation.
 
-**On Adam's (3)**: the skeleton and default values ($\beta_1=0.9,\;\beta_2=0.999,\;\varepsilon=10^{-8}$)
+**On Adam's (3)**: the skeleton and default values ($\beta_1=0.9, \beta_2=0.999, \varepsilon=10^{-8}$)
 match, but the placement of $\varepsilon$ differs.
 
 $$\text{nnscratch / paper / TF}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}$$

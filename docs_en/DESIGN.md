@@ -1,6 +1,9 @@
 # Design notes
 
 This document explains the few non-obvious engineering choices in nnscratch.
+It is the *why*; for the *how*, see [ARCHITECTURE.md](ARCHITECTURE.md), and for
+the derivations behind each `backward()`, [MATH.md](MATH.md). The full index is
+in [README.md](README.md).
 
 ## A single `Tensor` type
 

@@ -27,3 +27,16 @@ clang-format -i $(git ls-files '*.cpp' '*.hpp')
 ```
 
 Warnings are treated as errors (`-Werror`). Keep the build clean.
+
+## Where to look next
+
+- [docs_en/EXTENDING.md](docs_en/EXTENDING.md) — step-by-step guide to adding a
+  layer, optimizer, loss or dataset, with worked examples.
+- [docs_en/ARCHITECTURE.md](docs_en/ARCHITECTURE.md) — the layer contract, the
+  ownership rules around `ParamGrad`, and the invariants you must not break.
+- [docs_en/MATH.md](docs_en/MATH.md) — how each `backward()` is derived, which is
+  what you will be doing for any new layer.
+- [docs_en/TESTING.md](docs_en/TESTING.md) — how to add a test, and how to read a
+  gradient-check failure.
+
+日本語版は [docs_ja/](docs_ja/README.md) にあります。

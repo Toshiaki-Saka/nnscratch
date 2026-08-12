@@ -143,10 +143,28 @@ apps/                from_scratch.cpp, compare.cpp  (the two demos)
 tests/               tensor / gradient-check / optimizer tests (CTest)
 data/digits.csv      bundled dataset
 reference/           notes on the numpy/PyTorch/TensorFlow correspondence
-docs_en/             design & experiment notes (English)
-docs_ja/             the same design & experiment notes (Japanese)
+docs_en/             full documentation set (English)
+docs_ja/             the same documentation set (Japanese)
 run_demo.ps1         Windows demo runner (build + test + animated demos)
 ```
+
+## Documentation
+
+Full docs in [`docs_en/`](docs_en/README.md) — 日本語版は
+[`docs_ja/`](docs_ja/README.md)。
+
+| Document | Answers |
+|---|---|
+| [MATH.md](docs_en/MATH.md) | Every `backward()` derived from the chain rule — Dense, the fused softmax + cross-entropy, im2col/col2im, the optimizers, and the theory behind the gradient check |
+| [ARCHITECTURE.md](docs_en/ARCHITECTURE.md) | Module map, one training step end to end, ownership and lifetime rules, invariants |
+| [API.md](docs_en/API.md) | Every public type and function, with shapes, preconditions, exceptions and complexity |
+| [DESIGN.md](docs_en/DESIGN.md) | Why the non-obvious engineering choices were made |
+| [experiments.md](docs_en/experiments.md) | The three comparison experiments, and how each piece maps to PyTorch/TensorFlow |
+| [EXTENDING.md](docs_en/EXTENDING.md) | Adding a layer, optimizer, loss or dataset — with worked examples |
+| [TESTING.md](docs_en/TESTING.md) | What is tested, what is not, and how to read a gradient-check failure |
+| [BUILD.md](docs_en/BUILD.md) | Build options, install layout, consuming the library, troubleshooting |
+| [DATA_FORMATS.md](docs_en/DATA_FORMATS.md) | `digits.csv`, the output CSVs and the PGM images, specified exactly |
+| [PERFORMANCE.md](docs_en/PERFORMANCE.md) | Complexity, measured numbers, known inefficiencies, scaling limits |
 
 ## License
 
