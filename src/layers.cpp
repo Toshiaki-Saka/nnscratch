@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Toshiaki Saka
-#include <cmath>
-
 #include "nnscratch/layers.hpp"
+
+#include <cmath>
 
 namespace nn {
 

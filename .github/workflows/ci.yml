@@ -46,8 +46,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Run clang-format
         run: |
-          sudo apt-get update && sudo apt-get install -y clang-format
+          # Pinned on purpose. The distro package floats with the runner image,
+          # so a formatting-only change to clang-format upstream turns this job
+          # red without a commit touching the code. Installing from PyPI also
+          # lets contributors reproduce the check byte for byte on any OS:
+          #   python -m pip install clang-format==22.1.8
+          python -m pip install --quiet clang-format==22.1.8
+          clang-format --version
           files=$(git ls-files '*.cpp' '*.hpp')
           clang-format --dry-run --Werror $files

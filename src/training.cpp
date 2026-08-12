@@ -45,7 +45,8 @@ History train(Model& model, Optimizer& opt, const Tensor& x_train,
               const std::vector<int>& y_test, const TrainConfig& cfg) {
     SoftmaxCrossEntropy loss_fn;
     std::size_t num_classes = 1;
-    for (int label : y_train) num_classes = std::max(num_classes, static_cast<std::size_t>(label) + 1);
+    for (int label : y_train)
+        num_classes = std::max(num_classes, static_cast<std::size_t>(label) + 1);
     const Tensor Y_train = one_hot(y_train, num_classes);
     const std::size_t n = x_train.dim(0);
     Rng batch_rng(cfg.batch_seed);
@@ -76,8 +77,8 @@ History train(Model& model, Optimizer& opt, const Tensor& x_train,
         hist.train_acc.push_back(tr_acc);
         hist.test_acc.push_back(te_acc);
         if (cfg.verbose) {
-            std::printf("epoch %3d | loss %.4f | train_acc %5.1f%% | test_acc %5.1f%%\n",
-                        ep, train_loss, tr_acc * 100.0, te_acc * 100.0);
+            std::printf("epoch %3d | loss %.4f | train_acc %5.1f%% | test_acc %5.1f%%\n", ep,
+                        train_loss, tr_acc * 100.0, te_acc * 100.0);
         }
     }
     return hist;

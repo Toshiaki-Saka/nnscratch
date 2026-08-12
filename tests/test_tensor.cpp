@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Toshiaki Saka
+#include "check.hpp"
 #include "nnscratch/activations.hpp"
 #include "nnscratch/tensor.hpp"
-#include "check.hpp"
 
 using nn::Tensor;
 

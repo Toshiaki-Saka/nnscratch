@@ -28,8 +28,9 @@ inline void write_pgm(const std::string& path, const std::vector<double>& pixels
 /// Tile a set of equally-sized square images into one grid PGM, each cell
 /// independently min-max normalised so structure is visible. Useful for
 /// rendering learned weights/filters.
-inline void write_pgm_grid(const std::string& path, const std::vector<std::vector<double>>& cells,
-                           std::size_t cell, std::size_t cols, std::size_t pad = 1) {
+inline void write_pgm_grid(const std::string& path,
+                           const std::vector<std::vector<double>>& cells, std::size_t cell,
+                           std::size_t cols, std::size_t pad = 1) {
     const std::size_t rows = (cells.size() + cols - 1) / cols;
     const std::size_t W = cols * cell + (cols + 1) * pad;
     const std::size_t H = rows * cell + (rows + 1) * pad;

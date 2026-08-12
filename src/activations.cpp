@@ -29,7 +29,9 @@ Tensor ReLU::forward(const Tensor& x) {
     return x.map([](double v) { return v > 0.0 ? v : 0.0; });
 }
 
-Tensor ReLU::backward(const Tensor& grad_out) { return grad_out * mask_; }
+Tensor ReLU::backward(const Tensor& grad_out) {
+    return grad_out * mask_;
+}
 
 Tensor Tanh::forward(const Tensor& x) {
     out_ = x.map([](double v) { return std::tanh(v); });

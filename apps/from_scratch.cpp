@@ -22,8 +22,8 @@ void write_learning_curve(const std::string& path, const nn::History& h) {
     std::ofstream out(path);
     out << "epoch,train_loss,train_acc,test_acc\n";
     for (std::size_t i = 0; i < h.epoch.size(); ++i) {
-        out << h.epoch[i] << ',' << h.loss[i] << ',' << h.train_acc[i] << ','
-            << h.test_acc[i] << '\n';
+        out << h.epoch[i] << ',' << h.loss[i] << ',' << h.train_acc[i] << ',' << h.test_acc[i]
+            << '\n';
     }
 }
 
@@ -50,8 +50,8 @@ int main(int argc, char** argv) {
     std::puts(" Loading data");
     std::puts("======================================================================");
     const nn::DigitsData data = nn::load_digits(csv);
-    std::printf("train: %zu images / test: %zu images\n\n",
-                data.train.labels.size(), data.test.labels.size());
+    std::printf("train: %zu images / test: %zu images\n\n", data.train.labels.size(),
+                data.test.labels.size());
 
     // Build an untrained network: 64 -> 64 -> 32 -> 10, ReLU hidden layers.
     nn::Rng rng(42);
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 
     write_learning_curve(out_dir + "/learning_curve.csv", hist);
     write_learned_features(out_dir + "/learned_features.pgm", first);
-    std::printf("\nWrote: %s/learning_curve.csv, %s/learned_features.pgm\n",
-                out_dir.c_str(), out_dir.c_str());
+    std::printf("\nWrote: %s/learning_curve.csv, %s/learned_features.pgm\n", out_dir.c_str(),
+                out_dir.c_str());
     return 0;
 }

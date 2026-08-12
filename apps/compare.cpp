@@ -95,8 +95,7 @@ int main(int argc, char** argv) {
     const std::string out_dir = argc > 2 ? argv[2] : ".";
 
     const nn::DigitsData data = nn::load_digits(csv);
-    std::printf("train %zu / test %zu\n", data.train.labels.size(),
-                data.test.labels.size());
+    std::printf("train %zu / test %zu\n", data.train.labels.size(), data.test.labels.size());
 
     nn::Rng rng(kSeed);
     const auto reseed = [&] { rng.reseed(kSeed); };
@@ -112,8 +111,8 @@ int main(int argc, char** argv) {
         reseed();
         nn::Model m = build_mlp(rng, relu);
         nn::SGD sgd(0.2);
-        exp1["SGD"] = nn::train(m, sgd, data.train.flat, data.train.labels,
-                                data.test.flat, data.test.labels, cfg);
+        exp1["SGD"] = nn::train(m, sgd, data.train.flat, data.train.labels, data.test.flat,
+                                data.test.labels, cfg);
 
         reseed();
         m = build_mlp(rng, relu);
@@ -124,8 +123,8 @@ int main(int argc, char** argv) {
         reseed();
         m = build_mlp(rng, relu);
         nn::Adam adam(0.01);
-        exp1["Adam"] = nn::train(m, adam, data.train.flat, data.train.labels,
-                                 data.test.flat, data.test.labels, cfg);
+        exp1["Adam"] = nn::train(m, adam, data.train.flat, data.train.labels, data.test.flat,
+                                 data.test.labels, cfg);
     }
     print_table(exp1);
     write_curve(out_dir + "/cmp_optimizers.csv", exp1);
@@ -145,8 +144,8 @@ int main(int argc, char** argv) {
             reseed();
             nn::Model m = build_mlp(rng, act);
             nn::SGD sgd(0.5);
-            exp2[name] = nn::train(m, sgd, data.train.flat, data.train.labels,
-                                   data.test.flat, data.test.labels, cfg);
+            exp2[name] = nn::train(m, sgd, data.train.flat, data.train.labels, data.test.flat,
+                                   data.test.labels, cfg);
         }
     }
     print_table(exp2);
@@ -176,8 +175,8 @@ int main(int argc, char** argv) {
         reseed();
         cnn = build_cnn(rng);
         nn::Adam a3(0.01);
-        exp3["3_cnn"] = nn::train(cnn, a3, data.train.img, data.train.labels,
-                                  data.test.img, data.test.labels, cfg);
+        exp3["3_cnn"] = nn::train(cnn, a3, data.train.img, data.train.labels, data.test.img,
+                                  data.test.labels, cfg);
     }
     print_table(exp3);
     write_curve(out_dir + "/cmp_architecture.csv", exp3);

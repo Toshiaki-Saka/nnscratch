@@ -26,9 +26,8 @@ std::vector<Record> read_csv(const std::string& path) {
     std::vector<Record> records;
     std::string line;
     while (std::getline(in, line)) {
-        if (line.empty() || line[0] == '#') continue;            // comment lines
-        if (line.rfind("p0,", 0) == 0 || line.rfind("p0", 0) == 0)
-            continue;                                            // header row
+        if (line.empty() || line[0] == '#') continue;                         // comment lines
+        if (line.rfind("p0,", 0) == 0 || line.rfind("p0", 0) == 0) continue;  // header row
         std::stringstream ss(line);
         std::string cell;
         Record rec{};

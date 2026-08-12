@@ -19,8 +19,8 @@ namespace nn {
 /// Pixel values are normalised to [0, 1].
 struct DigitsData {
     struct Split {
-        Tensor flat;             // (N, 64)
-        Tensor img;              // (N, 1, 8, 8)
+        Tensor flat;              // (N, 64)
+        Tensor img;               // (N, 1, 8, 8)
         std::vector<int> labels;  // (N)
     };
     Split train;

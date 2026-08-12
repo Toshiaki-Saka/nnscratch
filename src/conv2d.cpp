@@ -43,8 +43,10 @@ Tensor Conv2D::forward(const Tensor& x) {
                 for (std::size_t c = 0; c < C; ++c)
                     for (std::size_t ky = 0; ky < k_; ++ky)
                         for (std::size_t kx = 0; kx < k_; ++kx) {
-                            const long h = static_cast<long>(i * stride_ + ky) - static_cast<long>(pad_);
-                            const long w = static_cast<long>(j * stride_ + kx) - static_cast<long>(pad_);
+                            const long h =
+                                static_cast<long>(i * stride_ + ky) - static_cast<long>(pad_);
+                            const long w =
+                                static_cast<long>(j * stride_ + kx) - static_cast<long>(pad_);
                             double v = 0.0;
                             if (h >= 0 && h < static_cast<long>(H) && w >= 0 &&
                                 w < static_cast<long>(W)) {
@@ -116,8 +118,10 @@ Tensor Conv2D::backward(const Tensor& grad_out) {
                 for (std::size_t c = 0; c < C; ++c)
                     for (std::size_t ky = 0; ky < k_; ++ky)
                         for (std::size_t kx = 0; kx < k_; ++kx) {
-                            const long h = static_cast<long>(i * stride_ + ky) - static_cast<long>(pad_);
-                            const long w = static_cast<long>(j * stride_ + kx) - static_cast<long>(pad_);
+                            const long h =
+                                static_cast<long>(i * stride_ + ky) - static_cast<long>(pad_);
+                            const long w =
+                                static_cast<long>(j * stride_ + kx) - static_cast<long>(pad_);
                             if (h >= 0 && h < static_cast<long>(H) && w >= 0 &&
                                 w < static_cast<long>(W)) {
                                 const std::size_t hh = static_cast<std::size_t>(h);

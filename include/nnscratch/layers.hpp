@@ -61,11 +61,11 @@ public:
 
 private:
     std::size_t k_, stride_, pad_;
-    Tensor W_, b_;    // (out_c, in_c, k, k), (out_c)
+    Tensor W_, b_;  // (out_c, in_c, k, k), (out_c)
     Tensor dW_, db_;
-    Tensor col_;                          // cached im2col matrix
-    std::vector<std::size_t> x_shape_;    // cached input shape
-    std::size_t oh_{}, ow_{};             // cached output spatial dims
+    Tensor col_;                        // cached im2col matrix
+    std::vector<std::size_t> x_shape_;  // cached input shape
+    std::size_t oh_{}, ow_{};           // cached output spatial dims
 };
 
 }  // namespace nn

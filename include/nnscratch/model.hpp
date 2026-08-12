@@ -16,8 +16,7 @@ namespace nn {
 class Model {
 public:
     Model() = default;
-    explicit Model(std::vector<std::unique_ptr<Layer>> layers)
-        : layers_(std::move(layers)) {}
+    explicit Model(std::vector<std::unique_ptr<Layer>> layers) : layers_(std::move(layers)) {}
 
     /// Append a layer and return a reference to it for fluent construction.
     template <class L, class... Args>

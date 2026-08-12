@@ -46,6 +46,7 @@ inline int summary(const char* suite) {
 }  // namespace nntest
 
 #define CHECK(expr) ::nntest::report((expr), #expr, __FILE__, __LINE__)
-#define CHECK_CLOSE(a, b, tol) ::nntest::report_close((a), (b), (tol), #a " ~= " #b, __FILE__, __LINE__)
+#define CHECK_CLOSE(a, b, tol) \
+    ::nntest::report_close((a), (b), (tol), #a " ~= " #b, __FILE__, __LINE__)
 
 #endif  // NNSCRATCH_TEST_CHECK_HPP

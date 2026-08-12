@@ -20,11 +20,18 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-Format with the bundled `.clang-format` before opening a pull request:
+Format with the bundled `.clang-format` before opening a pull request. CI pins
+clang-format to an exact version, so install the same one rather than relying on
+whatever your system package manager provides — different releases disagree
+about line breaking, and an unpinned binary will fight with CI:
 
 ```bash
+python -m pip install clang-format==22.1.8
 clang-format -i $(git ls-files '*.cpp' '*.hpp')
 ```
+
+The version lives in `.github/workflows/ci.yml`; keep the two in step when
+bumping it.
 
 Warnings are treated as errors (`-Werror`). Keep the build clean.
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Toshiaki Saka
-#include "nnscratch/nnscratch.hpp"
 #include "check.hpp"
+#include "nnscratch/nnscratch.hpp"
 
 using namespace nn;
 

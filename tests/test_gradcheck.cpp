@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <cmath>
 
-#include "nnscratch/nnscratch.hpp"
 #include "check.hpp"
+#include "nnscratch/nnscratch.hpp"
 
 using namespace nn;
 
