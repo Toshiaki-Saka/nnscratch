@@ -60,7 +60,11 @@ Run the demos:
 ```bash
 ./build/from_scratch          # Part 1: untrained -> trained
 ./build/compare               # Part 2: optimizer / activation / architecture comparison
+python reference/gui_demo.py  # a window that trains in front of you
 ```
+
+**[docs_en/DEMOS.md](docs_en/DEMOS.md) is the guide to all of them** — every
+launch command and, more usefully, how to read what comes out.
 
 On Windows, `run_demo.ps1` (PowerShell 7+) does the whole thing in one command —
 build, `ctest`, then the two demos with animated progress bars and ASCII charts:
@@ -188,6 +192,7 @@ Full docs in [`docs_en/`](docs_en/README.md) — 日本語版は
 
 | Document | Answers |
 |---|---|
+| [DEMOS.md](docs_en/DEMOS.md) | Every way to run this, and what to look for in each output — including the dip at epoch 2 and which column of the comparison tables actually carries the story |
 | [MATH.md](docs_en/MATH.md) | Every `backward()` derived from the chain rule — Dense, the fused softmax + cross-entropy, im2col/col2im, the optimizers, and the theory behind the gradient check |
 | [ARCHITECTURE.md](docs_en/ARCHITECTURE.md) | Module map, one training step end to end, ownership and lifetime rules, invariants |
 | [API.md](docs_en/API.md) | Every public type and function, with shapes, preconditions, exceptions and complexity |

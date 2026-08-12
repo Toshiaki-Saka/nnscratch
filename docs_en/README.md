@@ -2,10 +2,12 @@
 
 日本語版は [`docs_ja/`](../docs_ja/README.md) にあります。
 
-Ten documents. Start wherever your question is.
+Eleven documents. Start wherever your question is — or just
+[run something](DEMOS.md).
 
 | Document | Answers |
 |---|---|
+| [DEMOS.md](DEMOS.md) | How do I run it, and what am I looking at? Every launch command, and how to read the output |
 | [DESIGN.md](DESIGN.md) | *Why* is it built this way? The non-obvious engineering choices |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | *How* does it fit together? Module map, one training step end to end, ownership, invariants |
 | [MATH.md](MATH.md) | Where does each `backward()` come from? Every gradient derived from the chain rule |
@@ -20,6 +22,12 @@ Ten documents. Start wherever your question is.
 ---
 
 ## Reading paths
+
+**Just landed here and want to see it work:**
+
+1. [DEMOS.md](DEMOS.md) — the launch commands, and what each output means
+2. [DEMOS.md § the GUI demo](DEMOS.md#4-the-gui-demo--watching-it-learn) if you
+   would rather watch the weights organise than read about them
 
 **Learning how backpropagation actually works** — the reason the project exists:
 
