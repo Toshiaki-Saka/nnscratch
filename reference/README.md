@@ -117,6 +117,38 @@ seed — it partly does not, see
 python reference/architecture_trials.py --seeds 10
 ```
 
+## Watching it learn
+
+```bash
+python reference/gui_demo.py
+```
+
+![the GUI demo](gui_demo.png)
+
+A window with the four things worth watching while a network trains: the loss
+falling, train and test accuracy tracking each other, the first-layer weights
+reorganising from noise into stroke detectors, and ten held-out digits with the
+prediction underneath — wrong ones in red and bold, showing `predicted→true`, so
+the failure is never signalled by colour alone.
+
+Pick an architecture and an optimizer from the controls and it rebuilds from the
+same seed, which makes the experiments in
+[experiments.md](../docs_en/experiments.md) something you can watch rather than
+read: Sigmoid crawling where ReLU sprints, Adam pulling away from SGD in the
+first few epochs, the CNN's eight 3×3 kernels turning into edge detectors.
+
+Mini-batches run inside the Tk event loop — one epoch per tick — rather than on
+a worker thread, so there is no shared state between a trainer and a painter and
+nothing to get a lock wrong with. A 60-epoch MLP run takes about 20 seconds.
+
+The network is the numpy reference from this directory, so what the window shows
+is nnscratch's arithmetic, driven from Python because that is where a window is
+cheap. It reads `data/digits.csv` directly and needs nothing exported first.
+
+Requires `tkinter`, which ships with Python, plus the numpy and matplotlib
+already in `requirements.txt`. Nothing here reaches the C++ library, which
+remains dependency-free.
+
 ---
 
 ## Why an export step is needed
@@ -158,6 +190,7 @@ difference of exactly zero.
 | `compare_curves.py` | Overlays every curve found, prints the divergence table, writes the plot. |
 | `check_optimizer_equivalence.py` | Drives one scalar parameter through each framework's SGD/Momentum/Adam and identifies which closed-form update it implements. |
 | `architecture_trials.py` | Repeats experiment 3 across many seeds, because one seed cannot rank three models that finish within a point of each other. |
+| `gui_demo.py` | A window that trains the numpy reference live: loss and accuracy curves, the first-layer weights reorganising, and held-out digits with the current prediction. |
 
 All three training scripts use an explicit mini-batch loop rather than
 `model.fit()` or a `DataLoader`, for two reasons: the exported batch order has

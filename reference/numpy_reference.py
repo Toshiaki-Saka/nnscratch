@@ -170,6 +170,25 @@ class SGD:
             p -= self.lr * grad()
 
 
+class Momentum:
+    """v <- mu*v - lr*g ; p <- p + v.
+
+    nnscratch's form. PyTorch stores the velocity larger by 1/lr and subtracts
+    it, which is the same trajectory -- see check_optimizer_equivalence.py.
+    """
+
+    def __init__(self, lr, mu=0.9):
+        self.lr, self.mu = lr, mu
+        self.state = {}
+
+    def step(self, params):
+        for p, grad in params:
+            v = self.state.setdefault(id(p), np.zeros_like(p))
+            v *= self.mu
+            v -= self.lr * grad()
+            p += v
+
+
 class Adam:
     """Adam, in either of the two placements of epsilon found in the wild.
 
