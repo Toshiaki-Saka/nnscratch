@@ -17,6 +17,7 @@
 
 #include "nnscratch/nnscratch.hpp"
 #include "nnscratch/pgm.hpp"
+#include "nnscratch/report.hpp"
 
 #ifndef NNSCRATCH_DATA_DIR
 #define NNSCRATCH_DATA_DIR "."
@@ -85,6 +86,46 @@ void print_table(const std::map<std::string, nn::History>& runs, double threshol
         std::printf("%-20s%14.1f%%%13.1f%%%18s\n", name.c_str(), h.test_acc.back() * 100.0,
                     best * 100.0, ebuf);
     }
+}
+
+std::string pct(double fraction) {
+    char buf[16];
+    std::snprintf(buf, sizeof buf, "%.1f%%", fraction * 100.0);
+    return buf;
+}
+
+// Turn one experiment's runs into a loss chart, an accuracy chart and a summary
+// table. Series colours follow the run, so hiding one in the legend never
+// repaints the others.
+void add_experiment(nn::report::Report& rep, const std::string& title,
+                    const std::string& question,
+                    const std::map<std::string, nn::History>& runs) {
+    rep.heading(title);
+    rep.note(question);
+
+    const nn::History& any = runs.begin()->second;
+    const std::vector<double> epochs(any.epoch.begin(), any.epoch.end());
+
+    std::vector<nn::report::Series> loss, acc;
+    std::vector<std::vector<std::string>> rows;
+    for (const auto& [name, h] : runs) {
+        loss.push_back({name, h.loss});
+        acc.push_back({name, h.test_acc});
+        double best = 0.0;
+        for (double a : h.test_acc) best = std::max(best, a);
+        const int e = epochs_to_reach(h, 0.90);
+        rows.push_back({name, pct(h.test_acc.back()), pct(best),
+                        e >= 0 ? std::to_string(e) : std::string("never")});
+    }
+
+    rep.add(nn::report::Chart{"Training loss",
+                              "Log scale -- the interesting part is the "
+                              "first few epochs.",
+                              "epoch", "loss", epochs, loss, true, false});
+    rep.add(
+        nn::report::Chart{"Test accuracy", "", "epoch", "accuracy", epochs, acc, false, true});
+    rep.add(nn::report::Table{
+        "Summary", {"run", "final test acc", "best test acc", "epochs to 90%"}, rows});
 }
 
 }  // namespace
@@ -195,6 +236,37 @@ int main(int argc, char** argv) {
                            /*pad=*/1);
     }
 
+    // One page holding all three experiments side by side.
+    {
+        nn::report::Report rep("nnscratch — compare",
+                               "Three controlled experiments. Each varies one axis and "
+                               "holds the data, the initial weights and the batch order "
+                               "fixed, so the curves differ only by the thing under study.");
+        add_experiment(rep, "1. Optimizers",
+                       "Same network, same initial weights, same activation. Only the rule "
+                       "for turning a gradient into a step changes.",
+                       exp1);
+        add_experiment(rep, "2. Activations",
+                       "Same network, same optimizer. Sigmoid's derivative peaks at 1/4, so "
+                       "every layer it passes through shrinks the backward signal.",
+                       exp2);
+        add_experiment(rep, "3. Architecture",
+                       "Same optimizer, different shape. Depth beats the linear model "
+                       "reliably; the CNN and the deep MLP finish within a point of each "
+                       "other, which is less than the seed-to-seed spread.",
+                       exp3);
+
+        auto& conv = dynamic_cast<nn::Conv2D&>(cnn.layer(0));
+        rep.heading("What the convolution learned");
+        rep.add(nn::report::ImageGrid{
+            "CNN filters",
+            "The eight learned 3x3 kernels. The light/dark opposition across each kernel is "
+            "an edge detector: it responds where the image changes, not where it is bright.",
+            nn::report::filter_cells(conv.weight()), 3, 8});
+        rep.write(out_dir + "/compare.html");
+    }
+
     std::printf("\nWrote CSV curves and cnn_filters.pgm to %s\n", out_dir.c_str());
+    std::printf("Wrote %s/compare.html  <- open this one in a browser\n", out_dir.c_str());
     return 0;
 }

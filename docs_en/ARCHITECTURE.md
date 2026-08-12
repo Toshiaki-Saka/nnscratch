@@ -70,13 +70,16 @@ Ten headers, nine translation units, no cycles. Everything bottoms out at
 | `training.hpp` | `src/training.cpp` | `train()`, `TrainConfig`, `History` |
 | `dataset.hpp` | `src/dataset.cpp` | `load_digits()`, `DigitsData` |
 | `pgm.hpp` | header-only | Grayscale PGM writers, used by the demos only |
+| `report.hpp` | header-only | Self-contained HTML report writer, used by the demos only |
 
 `Conv2D` lives in its own `.cpp` despite being declared in `layers.hpp`: it is
 by far the longest implementation, and separating it keeps `layers.cpp` short
 enough to read in one sitting.
 
-`pgm.hpp` is intentionally *not* in the umbrella header. It is a demo utility,
-not part of the neural-network API; the apps include it explicitly.
+`pgm.hpp` and `report.hpp` are intentionally *not* in the umbrella header. They
+are demo utilities for turning results into something you can look at — a
+grayscale image and a browser page — not part of the neural-network API; the
+apps include them explicitly.
 
 ---
 

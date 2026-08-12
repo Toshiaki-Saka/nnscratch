@@ -68,13 +68,16 @@
 | `training.hpp` | `src/training.cpp` | `train()`, `TrainConfig`, `History` |
 | `dataset.hpp` | `src/dataset.cpp` | `load_digits()`, `DigitsData` |
 | `pgm.hpp` | ヘッダのみ | グレースケール PGM の書き出し。デモ専用 |
+| `report.hpp` | ヘッダのみ | 自己完結 HTML レポートの書き出し。デモ専用 |
 
 `Conv2D` は `layers.hpp` で宣言されているのに独立した `.cpp` を持つ。実装が
 群を抜いて長く、分離しておくことで `layers.cpp` が一度に読み切れる長さに収まる
 からである。
 
-`pgm.hpp` は意図的に総括ヘッダに含めていない。これはデモ用のユーティリティで
-あってニューラルネットワーク API の一部ではないので、デモ側が明示的に include する。
+`pgm.hpp` と `report.hpp` は意図的に総括ヘッダに含めていない。どちらも結果を
+「見られるもの」— グレースケール画像とブラウザで開くページ — に変えるためのデモ用
+ユーティリティであって、ニューラルネットワーク API の一部ではない。デモ側が明示的に
+include する。
 
 ---
 

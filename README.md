@@ -76,9 +76,13 @@ stdout is not a console, so redirecting or piping works; `-NonInteractive`
 forces the same behaviour on a terminal.
 
 Each demo accepts optional arguments: `from_scratch [digits.csv] [output_dir]`.
-They emit a learning-curve CSV and grayscale `.pgm` images of the learned
-weights/filters — visualization is intentionally left to the consumer (plot the
-CSV with whatever you like) to keep the core dependency-free.
+Each writes a **self-contained HTML report** — `from_scratch.html` and
+`compare.html` — with interactive charts, the learned weight images and the
+result tables. Open it in a browser: CSS, JavaScript and every data point are
+inlined, so there is no server, no install and no network request. The raw CSVs
+and grayscale `.pgm` images are written alongside for anyone who would rather
+plot them elsewhere; the core library still takes no dependency to produce any
+of it.
 
 ## Use it as a library
 

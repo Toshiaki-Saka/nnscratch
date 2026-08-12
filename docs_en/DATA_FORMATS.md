@@ -9,6 +9,7 @@ or trivially-parsed binary, so no library is needed on either side.
 - [learning_curve.csv](#learning_curvecsv)
 - [cmp_*.csv](#cmp_csv)
 - [PGM images](#pgm-images)
+- [The HTML report](#the-html-report)
 - [Plotting the outputs](#plotting-the-outputs)
 - [The reference export](#the-reference-export)
 
@@ -248,6 +249,43 @@ plt.axis("off"); plt.show()
 At 73×73 the images are small by design; view them with nearest-neighbour
 scaling, since smooth interpolation blurs away exactly the stroke structure you
 are looking for.
+
+---
+
+## The HTML report
+
+Each demo also writes one self-contained page — `from_scratch.html` and
+`compare.html` — produced by `include/nnscratch/report.hpp`. Open it in a
+browser; there is nothing to install and nothing to serve.
+
+| File | Written by | Contains |
+|---|---|---|
+| `from_scratch.html` | `from_scratch` | headline accuracies, the loss curve (log scale), train/test accuracy, and the 64 first-layer weight tiles |
+| `compare.html` | `compare` | all three experiments as loss + accuracy charts with a summary table each, and the eight learned conv filters |
+
+**Self-contained means self-contained.** CSS, JavaScript and every data point
+are inlined into the document — no CDN, no `<script src>`, no `fetch`, no web
+font. The file works offline, from a `file://` URL, on a machine that has never
+seen this repository, and it survives being attached to a mail. That constraint
+is the same one the library itself lives under, applied to its output.
+
+The charts are drawn on a `<canvas>` by about a hundred lines of vanilla
+JavaScript. There is no charting library, because taking one on would mean
+either a network request at view time or vendoring a minified blob into the
+repository, and both defeat the point.
+
+What the page gives you that the CSV does not:
+
+- **Hover** anywhere on a chart for a crosshair and the values at that epoch.
+- **Click a legend entry** to hide a series; colours follow the run, so hiding
+  one never repaints the others.
+- **Show data table** prints the numbers behind any chart, which is also what
+  makes the charts usable when colour is not available.
+- **Log/linear toggle** on the loss charts — the interesting part of a loss
+  curve is the first few epochs, which linear scale flattens into nothing.
+- **Theme button**, plus automatic dark mode from the OS setting.
+
+`output/` is gitignored, so these are regenerated, not committed.
 
 ---
 
