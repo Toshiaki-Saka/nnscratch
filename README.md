@@ -68,7 +68,12 @@ build, `ctest`, then the two demos with animated progress bars and ASCII charts:
 ```powershell
 .\run_demo.ps1              # full run
 .\run_demo.ps1 -SkipBuild   # skip the build/test step and just run the demos
+.\run_demo.ps1 > demo.log   # non-interactive: no prompts, no animation
 ```
+
+The animation and the "Press Enter" prompts are skipped automatically when
+stdout is not a console, so redirecting or piping works; `-NonInteractive`
+forces the same behaviour on a terminal.
 
 Each demo accepts optional arguments: `from_scratch [digits.csv] [output_dir]`.
 They emit a learning-curve CSV and grayscale `.pgm` images of the learned

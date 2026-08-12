@@ -19,10 +19,17 @@
     Skip the build and run only the demos.
 .PARAMETER SkipTests
     Skip ctest.
+.PARAMETER NonInteractive
+    Skip the "Press Enter" prompts, the screen clear and the animations, and
+    print one plain line per epoch instead. Detected automatically when stdout
+    is not a console, so piping or redirecting the script already works:
+        pwsh -File .\run_demo.ps1 > demo.log
 .EXAMPLE
     .\run_demo.ps1
 .EXAMPLE
     .\run_demo.ps1 -SkipBuild
+.EXAMPLE
+    .\run_demo.ps1 -NonInteractive -SkipTests > demo.log
 #>
 [CmdletBinding()]
 param(
@@ -30,7 +37,8 @@ param(
     [string]$BuildDir  = "build",
     [string]$OutDir    = "output",
     [switch]$SkipBuild,
-    [switch]$SkipTests
+    [switch]$SkipTests,
+    [switch]$NonInteractive
 )
 
 Set-StrictMode -Version Latest
@@ -74,6 +82,30 @@ $White   = C "97"
 # Cursor movement
 function Up($n)    { "${ESC}[${n}A" }
 function ClearLine { "${ESC}[2K`r" }
+
+# ── Interactivity ─────────────────────────────────────────────────────────────
+# Clear-Host and the progress bars drive the console cursor. With stdout on a
+# pipe or a file there is no console to drive: Clear-Host sets
+# $RawUI.CursorPosition and throws "invalid handle", which $ErrorActionPreference
+# = "Stop" turns into an aborted run before the banner is even printed. So decide
+# once, here, whether the console tricks are available at all.
+function Test-InteractiveConsole {
+    if ($NonInteractive)                { return $false }
+    if ([Console]::IsOutputRedirected)  { return $false }
+    try { $null = $Host.UI.RawUI.CursorPosition } catch { return $false }
+    return $true
+}
+$script:Interactive = Test-InteractiveConsole
+
+# Pause only when someone is there to press the key.
+function Wait-ForUser {
+    param([string]$Message)
+    if ($script:Interactive) {
+        $null = Read-Host $Message
+    } else {
+        Write-Host ""
+    }
+}
 
 # ── Utilities ─────────────────────────────────────────────────────────────────
 function Write-Color {
@@ -232,19 +264,27 @@ function Run-FromScratch {
             $sc = Acc-Color $testAcc
             $pc = if ($pct -ge 0.5) { $Green } else { $Cyan }
 
-            # Overwrite the previous bars
-            if ($drewBars) {
-                Write-Host -NoNewline (Up $barLines)
+            if (-not $script:Interactive) {
+                # No cursor to rewind, so stream one readable line per epoch
+                # instead of redrawing a block in place.
+                Write-Host ("  Epoch {0,3} / {1}   loss {2}   train {3,5}%   test {4,5}%" -f `
+                            $ep, $totalEpochs, $loss.ToString('F4'),
+                            $m.Groups[3].Value, $m.Groups[4].Value)
+            } else {
+                # Overwrite the previous bars
+                if ($drewBars) {
+                    Write-Host -NoNewline (Up $barLines)
+                }
+
+                # ─── Progress display ($barLines lines) ───
+                Write-Host "$(ClearLine)  ${Bold}Epoch $("{0,3}" -f $ep) / ${totalEpochs}${Reset}  [${pc}${pBar}${Reset}]  Loss: ${Cyan}$($loss.ToString('F4'))${Reset}"
+                Write-Host "$(ClearLine)  Train  [${tc}${trainBar}${Reset}] ${tc}$($m.Groups[3].Value)%${Reset}"
+                Write-Host "$(ClearLine)  Test   [${sc}${testBar}${Reset}] ${sc}$($m.Groups[4].Value)%${Reset}"
+                Write-Host "$(ClearLine)  $($Dim)──────────────────────────────────────────────────────────$($Reset)"
+                Write-Host "$(ClearLine)"
+
+                $drewBars = $true
             }
-
-            # ─── Progress display ($barLines lines) ───
-            Write-Host "$(ClearLine)  ${Bold}Epoch $("{0,3}" -f $ep) / ${totalEpochs}${Reset}  [${pc}${pBar}${Reset}]  Loss: ${Cyan}$($loss.ToString('F4'))${Reset}"
-            Write-Host "$(ClearLine)  Train  [${tc}${trainBar}${Reset}] ${tc}$($m.Groups[3].Value)%${Reset}"
-            Write-Host "$(ClearLine)  Test   [${sc}${testBar}${Reset}] ${sc}$($m.Groups[4].Value)%${Reset}"
-            Write-Host "$(ClearLine)  $($Dim)──────────────────────────────────────────────────────────$($Reset)"
-            Write-Host "$(ClearLine)"
-
-            $drewBars = $true
         }
         elseif ($line -match 'Untrained test accuracy:\s*([\d.]+)') {
             Write-Host "  ${Yellow}Initial accuracy (untrained): $($Matches[1])%${Reset}  ← about the same as random guessing"
@@ -365,24 +405,31 @@ function Run-Compare {
     $frame  = 0
 
     Write-Host ""
-    while (-not $proc.HasExited) {
-        $f = $spinFrames[$frame % $spinFrames.Count]
+    if (-not $script:Interactive) {
+        # A spinner redrawn on one line is noise in a log file. Announce the work
+        # and wait for it instead.
+        foreach ($name in $expNames) { Write-Color "  running $name" $Dim }
+        $proc.WaitForExit()
+    } else {
+        while (-not $proc.HasExited) {
+            $f = $spinFrames[$frame % $spinFrames.Count]
 
-        # Estimate experiment progress from the output file's line count
-        $linesNow = 0
-        if (Test-Path $tmpOut) {
-            $linesNow = (Get-Content $tmpOut -ErrorAction SilentlyContinue | Measure-Object -Line).Lines
+            # Estimate experiment progress from the output file's line count
+            $linesNow = 0
+            if (Test-Path $tmpOut) {
+                $linesNow = (Get-Content $tmpOut -ErrorAction SilentlyContinue | Measure-Object -Line).Lines
+            }
+            # print_table emits a few lines after each experiment
+            $expIdx = [Math]::Min(2, [int]($linesNow / 8))
+
+            $expMsg = $expNames[[Math]::Min($expIdx, 2)]
+            Write-Host -NoNewline "${ESC}[2K`r  ${Cyan}${f}${Reset} ${expMsg}"
+
+            Start-Sleep -Milliseconds 80
+            $frame++
         }
-        # print_table emits a few lines after each experiment
-        $expIdx = [Math]::Min(2, [int]($linesNow / 8))
-
-        $expMsg = $expNames[[Math]::Min($expIdx, 2)]
-        Write-Host -NoNewline "${ESC}[2K`r  ${Cyan}${f}${Reset} ${expMsg}"
-
-        Start-Sleep -Milliseconds 80
-        $frame++
+        Write-Host -NoNewline "`r$(' ' * 80)`r"  # clear the spinner
     }
-    Write-Host -NoNewline "`r$(' ' * 80)`r"  # clear the spinner
 
     # Parse the output and print it in color
     $tableRx  = [regex]'^\s*(\S+)\s+([\d.]+)%\s+([\d.]+)%\s+(.+)$'
@@ -461,7 +508,7 @@ $OutPath   = Join-Path $ScriptDir $OutDir
 $DataCsv   = Join-Path $ScriptDir "data\digits.csv"
 
 # ── Banner ─────────────────────────────────────────────────────────────────────
-Clear-Host
+if ($script:Interactive) { Clear-Host }
 Write-Host ""
 Write-Color "  ╔══════════════════════════════════════════════════════════════════╗" $Cyan
 Write-Color "  ║                                                                  ║" $Cyan
@@ -493,7 +540,7 @@ $cmpExe = Find-Exe $BldPath "compare"      $BuildType
 Write-Color "  from_scratch : $fsExe" $Dim
 Write-Color "  compare      : $cmpExe" $Dim
 Write-Host ""
-Read-Host "  Press Enter to start the demo"
+Wait-ForUser "  Press Enter to start the demo"
 
 # 4. from_scratch demo (real-time animation)
 Run-FromScratch -ExePath $fsExe -CsvPath $DataCsv -OutputDir $OutPath
@@ -501,7 +548,7 @@ Run-FromScratch -ExePath $fsExe -CsvPath $DataCsv -OutputDir $OutPath
 # 5. Learning-curve ASCII chart
 Show-LearningCurve -CsvPath (Join-Path $OutPath "learning_curve.csv")
 
-Read-Host "  Press Enter to start the comparison experiments"
+Wait-ForUser "  Press Enter to start the comparison experiments"
 
 # 6. compare demo (spinner → colored results)
 Run-Compare -ExePath $cmpExe -CsvPath $DataCsv -OutputDir $OutPath

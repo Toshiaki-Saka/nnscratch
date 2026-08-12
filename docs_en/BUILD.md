@@ -245,7 +245,17 @@ both demos with progress bars and ASCII charts:
 ```powershell
 .\run_demo.ps1              # full run
 .\run_demo.ps1 -SkipBuild   # skip build/test, just run the demos
+.\run_demo.ps1 > demo.log   # non-interactive
 ```
+
+`Clear-Host` and the progress bars drive the console cursor, and the script
+pauses twice on `Read-Host`. Neither works when stdout is a pipe or a file — the
+cursor call throws "invalid handle", which `$ErrorActionPreference = "Stop"`
+turns into an aborted run. The script therefore probes for a real console at
+startup (`[Console]::IsOutputRedirected`, then a `$Host.UI.RawUI.CursorPosition`
+read) and, when there is none, drops the prompts and prints one plain line per
+epoch instead of redrawing a block in place. `-NonInteractive` forces that mode
+on a terminal.
 
 It is a presentation wrapper. Everything it does is reachable through plain
 CMake commands; nothing in the library depends on it.
