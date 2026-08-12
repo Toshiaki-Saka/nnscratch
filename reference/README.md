@@ -109,6 +109,14 @@ To settle the optimizer questions on their own, without any network:
 python reference/check_optimizer_equivalence.py
 ```
 
+To check whether experiment 3's architecture ranking survives more than one
+seed — it partly does not, see
+[experiments.md](../docs_en/experiments.md#what-actually-happens):
+
+```bash
+python reference/architecture_trials.py --seeds 10
+```
+
 ---
 
 ## Why an export step is needed
@@ -149,6 +157,7 @@ difference of exactly zero.
 | `tensorflow_reference.py` | Same network, `tf.GradientTape` doing the work. |
 | `compare_curves.py` | Overlays every curve found, prints the divergence table, writes the plot. |
 | `check_optimizer_equivalence.py` | Drives one scalar parameter through each framework's SGD/Momentum/Adam and identifies which closed-form update it implements. |
+| `architecture_trials.py` | Repeats experiment 3 across many seeds, because one seed cannot rank three models that finish within a point of each other. |
 
 All three training scripts use an explicit mini-batch loop rather than
 `model.fit()` or a `DataLoader`, for two reasons: the exported batch order has

@@ -116,7 +116,7 @@ while holding the data and initial weights fixed:
 |---|---|
 | Optimizers | Adam / Momentum converge faster than plain SGD |
 | Activations | Sigmoid is slowest to reach 90% (vanishing gradients); ReLU/Tanh are quick |
-| Architecture | CNN ≥ deep MLP > shallow (no hidden layer) |
+| Architecture | Deep MLP and CNN both beat the shallow (no hidden layer) model; at 8×8 the two are not distinguishable from each other |
 
 ## numpy → C++ → framework correspondence
 

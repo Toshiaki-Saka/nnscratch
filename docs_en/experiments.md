@@ -239,6 +239,38 @@ nn::Model build_cnn(nn::Rng& rng) {
 }
 ```
 
+### What actually happens
+
+`compare` reports one number per architecture from a single seed, which is not
+enough to rank them. Repeating the experiment across 10 seeds — data held fixed,
+initialisation and batch order varied together across all three architectures —
+gives final test accuracy:
+
+| Architecture | mean | sd | min | max |
+|---|---|---|---|---|
+| Shallow | 96.50 | 0.23 | 96.1 | 96.9 |
+| Deep MLP | 97.56 | 0.45 | 96.7 | 98.3 |
+| CNN | 97.25 | 0.46 | 96.4 | 97.8 |
+
+| Comparison | Holds in | Mean difference |
+|---|---|---|
+| Deep MLP > shallow | **10 / 10 seeds** | +1.06 pt |
+| CNN > shallow | **9 / 10 seeds** | +0.75 pt |
+| CNN ≥ deep MLP | 4 / 10 seeds | −0.31 pt |
+
+So the finding that survives is **depth beats a linear model**, robustly. The
+finding that does *not* is any ordering between the deep MLP and the CNN: they
+differ by less than their own seed-to-seed spread, and 0.31 points is about one
+image out of the 360-sample test set.
+
+That is the honest result at this scale rather than a disappointment. A 3×3
+kernel sliding over an 8×8 image has almost no translation to exploit, and the
+digits are already centred and size-normalised — the conditions that make
+convolution win are largely absent. Expect the gap to open up on larger, less
+pre-processed images, which is exactly the claim this dataset cannot test.
+
+Reproduce with `python reference/architecture_trials.py`.
+
 ---
 
 ## Relationship between nnscratch / PyTorch / TensorFlow
