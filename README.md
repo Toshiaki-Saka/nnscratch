@@ -134,15 +134,39 @@ while holding the data and initial weights fixed:
 The single most important row is the bold one: everything the frameworks
 automate via autograd is spelled out explicitly here.
 
+### The table, verified
+
+[`reference/`](reference/README.md) trains this same network four ways — this
+library, numpy, PyTorch and TensorFlow — on the same data, from the same initial
+weights, in the same mini-batch order, so the only variable left is who computes
+the gradients. Measured over 60 epochs in float64:
+
+| | final test acc | max \|loss gap\| | max \|prediction gap\| |
+|---|---|---|---|
+| nnscratch (baseline) | 0.9778 | — | — |
+| numpy | 0.9778 | 2.3e-15 | 0 |
+| PyTorch | 0.9778 | 1.7e-08 | 0 |
+| TensorFlow | 0.9778 | 1.5e-08 | 0 |
+
+The 1e-08 is not a disagreement — it is this library reporting
+`log(p + 1e-9)` where the frameworks report `log p`. With the randomness taken
+out, the hand-written backward pass and `loss.backward()` are the same
+computation.
+
+The one place they genuinely part company is Adam on the CNN, where
+TensorFlow drifts by 1.8e-04 because Keras applies its epsilon before bias
+correction rather than after. That, and the rest of the comparison, is in
+[reference/README.md](reference/README.md).
+
 ## Project layout
 
 ```
 include/nnscratch/   public headers (Tensor, layers, loss, optimizers, model, ...)
 src/                 implementations
-apps/                from_scratch.cpp, compare.cpp  (the two demos)
+apps/                from_scratch.cpp, compare.cpp, export_reference.cpp
 tests/               tensor / gradient-check / optimizer tests (CTest)
 data/digits.csv      bundled dataset
-reference/           notes on the numpy/PyTorch/TensorFlow correspondence
+reference/           runnable numpy / PyTorch / TensorFlow ports of the same run
 docs_en/             full documentation set (English)
 docs_ja/             the same documentation set (Japanese)
 run_demo.ps1         Windows demo runner (build + test + animated demos)

@@ -88,7 +88,7 @@ cmake -S . -B build -DNNSCRATCH_WARNINGS_AS_ERRORS=OFF
 | `nnscratch` | ライブラリ | 本体。`BUILD_SHARED_LIBS=ON` でなければ `STATIC` |
 | `nnscratch::nnscratch` | エイリアス | `target_link_libraries` ではこちらを使う。ツリー内ビルドでも `find_package` でも同じ名前で通る |
 | `nnscratch_warnings` | `INTERFACE` | 警告フラグ一式。`PRIVATE` かつ `$<BUILD_INTERFACE:...>` で包んであるので、インストール後の利用側には漏れない |
-| `from_scratch`, `compare` | 実行ファイル | デモ。`NNSCRATCH_BUILD_APPS` に依存 |
+| `from_scratch`, `compare`, `export_reference` | 実行ファイル | デモと参照データのエクスポータ。`NNSCRATCH_BUILD_APPS` に依存 |
 | `test_tensor`, `test_gradcheck`, `test_optimizer` | 実行ファイル | `NNSCRATCH_BUILD_TESTS` に依存。CTest に登録される |
 
 `VERSION` と `SOVERSION` は `project(VERSION 0.1.0)` から設定されるので、共有
@@ -222,6 +222,14 @@ target_compile_definitions(${demo} PRIVATE
 
 実行時間は数秒である。Release ビルドで `from_scratch`（61 エポック）が約 1 秒、
 `compare`（9 回の学習）が約 6 秒。[PERFORMANCE.md](PERFORMANCE.md) を参照。
+
+3 つ目の実行ファイル `export_reference` はデモではない。分割・初期重み・
+ミニバッチ順序を書き出し、[`reference/`](../reference/README.md) にある
+PyTorch/TensorFlow 版が実行を厳密に再現できるようにするためのものである。
+
+```bash
+./build/export_reference          # output/reference/ に書き出す
+```
 
 ---
 

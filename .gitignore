@@ -12,6 +12,16 @@ cmake-build-*/
 learning_curve.csv
 cmp_*.csv
 
+# Generated reference export + framework curves (regenerate with
+# export_reference and the scripts in reference/)
+/output/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
 # Editor / OS
 .vscode/
 .idea/

@@ -69,7 +69,7 @@ set_target_properties(nnscratch PROPERTIES
 
 # ---- Demo applications -------------------------------------------------------
 if(NNSCRATCH_BUILD_APPS)
-    foreach(demo from_scratch compare)
+    foreach(demo from_scratch compare export_reference)
         add_executable(${demo} apps/${demo}.cpp)
         target_link_libraries(${demo} PRIVATE nnscratch nnscratch_warnings)
         target_compile_definitions(${demo} PRIVATE

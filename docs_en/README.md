@@ -29,6 +29,28 @@ Ten documents. Start wherever your question is.
 3. [TESTING.md § test_gradcheck](TESTING.md#test_gradcheck) — how the derivations are proven correct
 4. [experiments.md](experiments.md) — see the consequences in the training curves
 
+**Comparing against PyTorch / TensorFlow** — the thread the project was built
+around, which runs across several documents:
+
+1. [README.md § correspondence table](../README.md#numpy--c--framework-correspondence)
+   — the map of what corresponds to what. One row is the point: the hand-written
+   `backward()` against `loss.backward()` / `tape.gradient(...)`. The rest are
+   renamings; that one is a difference in kind.
+2. [experiments.md § the four layers of difference](experiments.md#the-four-layers-of-difference)
+   — where the implementations actually diverge: autograd, numeric type, the
+   internal formulas, and bundled features. The table of which layer each
+   optimizer touches is the summary.
+3. [reference/README.md](../reference/README.md) — the same network trained four
+   ways on the same weights and the same batch order, with the measured gaps.
+   This is where the claims above become reproducible numbers.
+4. [MATH.md](MATH.md) for why a framework can hide all this — the
+   [fused loss](MATH.md#softmax--cross-entropy-fused) explains why
+   `nn.CrossEntropyLoss` wants logits, and
+   [im2col](MATH.md#conv2d-via-im2col) is what cuDNN does underneath.
+5. [ARCHITECTURE.md § what is deliberately absent](ARCHITECTURE.md#what-is-deliberately-absent)
+   — the other side of the ledger: everything the frameworks give you that this
+   does not.
+
 **Using it as a library:**
 
 1. [BUILD.md § Consuming the library](BUILD.md#consuming-the-library)

@@ -1,0 +1,15 @@
+# Dependencies for the reference implementations in this directory ONLY.
+#
+# The nnscratch library itself has no dependencies at all -- not at build time,
+# not at run time -- and nothing here is needed to build it, test it, or run the
+# demos. These packages exist so the comparison in README.md can be reproduced.
+#
+#   python -m pip install -r reference/requirements.txt
+#
+# Versions the results in README.md were produced with are noted; anything
+# reasonably recent should work.
+
+numpy>=1.24            # verified with 1.26.4 -- required by every script here
+torch>=2.0             # verified with 2.12.0+cpu -- pytorch_reference.py
+tensorflow>=2.16       # verified with 2.20.0 (Keras 3) -- tensorflow_reference.py
+matplotlib>=3.7        # optional: compare_curves.py skips the plot without it

@@ -32,6 +32,26 @@ The English version lives in [`docs_en/`](../docs_en/README.md).
    どう証明しているか
 4. [experiments.md](experiments.md) — 学習曲線に現れる帰結を見る
 
+**PyTorch / TensorFlow と比較する** — このプロジェクトが作られた本来の筋であり、
+複数のドキュメントにまたがっている:
+
+1. [README.md の対応表](../README.md#numpy--c--framework-correspondence)
+   — 何が何に対応するかの地図。要点は 1 行だけで、手書きの `backward()` と
+   `loss.backward()` / `tape.gradient(...)` の対応である。他の行は名前が違うだけだが、
+   この行だけは存在の仕方が違う。
+2. [experiments.md の「差の 4 層」](experiments.md#差の-4-層)
+   — 実装が実際に分岐する場所。自動微分、数値型、内部式、付随機能の 4 つ。
+   どのオプティマイザがどの層に関係するかの表が要約になっている。
+3. [reference/README.md](../reference/README.md) — 同じ重み・同じバッチ順序で
+   同じネットワークを 4 通りに学習させ、差を実測した結果。上の主張が再現可能な
+   数値になる場所である。
+4. [MATH.md](MATH.md) — なぜフレームワークがそれを隠せるのか。
+   [損失の融合](MATH.md#softmax--cross-entropy-の融合)は
+   `nn.CrossEntropyLoss` がロジットを受け取る理由を説明し、
+   [im2col](MATH.md#im2col-による-conv2d) は cuDNN が内部で行っていることそのものである。
+5. [ARCHITECTURE.md の「意図的に存在しないもの」](ARCHITECTURE.md#意図的に存在しないもの)
+   — 帳簿の反対側。フレームワークにあって、ここにないものの一覧。
+
 **ライブラリとして使う:**
 
 1. [BUILD.md のライブラリを利用する](BUILD.md#ライブラリを利用する)

@@ -428,11 +428,15 @@ $\beta_2 = 0.999$ would be about $\sqrt{1000} \approx 31$ times too small. The
 correction decays to nothing as $t$ grows — which is why `Adam` keeps a step
 counter `t_`, incremented once per `step()` call, not per parameter.
 
-**Where $\varepsilon$ sits.** This library places it *outside* the square root,
-$\eta \hat m / (\sqrt{\hat v} + \varepsilon)$, following the original paper and
-TensorFlow. PyTorch's default is $\eta \hat m / \sqrt{\hat v + \varepsilon}$.
-The two differ only when $\hat v \lll \varepsilon^2$; see
-[experiments.md](experiments.md).
+**Where $\varepsilon$ sits.** This library places it outside the square root and
+*after* bias correction: $\eta \hat m / (\sqrt{\hat v} + \varepsilon)$. PyTorch
+does exactly the same. TensorFlow/Keras instead applies it to the un-corrected
+second moment — the "$\hat\varepsilon$" of the original paper — which is
+equivalent to inflating epsilon by $1/\sqrt{1 - \beta_2^{t}}$ in the early
+steps. At the default $\varepsilon = 10^{-8}$ the difference is around
+$10^{-8}$ and training is unaffected. Measured, not assumed:
+`reference/check_optimizer_equivalence.py` reproduces each framework's update in
+closed form. See [experiments.md](experiments.md).
 
 ### Per-parameter state and pointer identity
 

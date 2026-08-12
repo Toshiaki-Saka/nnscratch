@@ -234,6 +234,13 @@ nn::Model build_cnn(nn::Rng& rng) {
 
 ## nnscratch / PyTorch / TensorFlow の関係
 
+> この節の内容はすべて再現できる。[`reference/`](../reference/README.md) は
+> 同じネットワークを numpy・PyTorch・TensorFlow で、*同じ* 初期重み・分割・
+> ミニバッチ順序から学習させ、実測した差を報告する。また
+> `reference/check_optimizer_equivalence.py` は、各フレームワークの
+> オプティマイザが実際にどの閉じた式を実装しているかを同定する。以下の記述は
+> リリースノートではなく、その実測に基づいている。
+
 ### 3 実装の立ち位置
 
 PyTorch・TensorFlow は nnscratch と**まったく同じ数式を動かしている**。
@@ -304,18 +311,31 @@ PyTorch には `dampening` オプションがあり初回ステップの挙動�
 |---|---|---|---|
 | ① 自動微分の有無 | ○ | ○ | ○ |
 | ② float64 vs float32 | ○ | ○ | ○ |
-| ③ 内部式の微妙な差 | **なし** | ○（式の形が異なる） | △（$`\varepsilon`$ の適用位置が異なる） |
+| ③ 内部式の微妙な差 | **なし** | ○（式の形は異なるが軌跡は一致） | △（TF のみ：$`\varepsilon`$ がバイアス補正前に入る） |
 | ④ 付随機能 | weight_decay / clipping | 同左 | + AMSGrad |
 
 **SGD に③の差がない理由**：状態（速度・モーメント）を持たないため実装の揺れようがない。
 
-**Adam の③について**：骨格とデフォルト値（$`\beta_1=0.9,\;\beta_2=0.999,\;\varepsilon=10^{-8}`$）は揃っているが、 $\varepsilon$ の適用位置が異なる。
+**Adam の③について**：骨格とデフォルト値（$`\beta_1=0.9,\;\beta_2=0.999,\;\varepsilon=10^{-8}`$）は揃っているが、$\varepsilon$ が入る位置が異なる。
+**PyTorch は nnscratch と完全に同一で、異なるのは TensorFlow/Keras のほうである。**
 
-$$\text{nnscratch / 論文 / TF}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}$$
+```math
+\text{nnscratch / PyTorch}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}
+```
 
-$$\text{PyTorch（デフォルト）}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v} + \varepsilon}}$$
+```math
+\text{TensorFlow / Keras}: \quad \alpha_t = \eta\,\frac{\sqrt{1 - \beta_2^{\,t}}}{1 - \beta_1^{\,t}}, \qquad p \leftarrow p - \alpha_t \cdot \frac{m}{\sqrt{v} + \varepsilon}
+```
 
-$\hat{v}$ が極端に小さい場合に挙動が変わるが、通常の学習では差はほぼ出ない。
+Keras は $\varepsilon$ を **バイアス補正前の** 2 次モーメントに適用する。Keras 自身の
+ドキュメントが述べているとおり、これは Kingma–Ba 論文の「$\hat\varepsilon$」にあたる。
+式を変形すると $\eta \hat m / (\sqrt{\hat v} + \varepsilon / \sqrt{1 - \beta_2^{t}})$ となり、
+初期のステップほど実効的な $\varepsilon$ が大きくなる。
+
+PyTorch 2.12 と TensorFlow 2.20 に対し float64 で実測して確認した。$\varepsilon = 0.5$ と
+誇張して 4 ステップ回すと、PyTorch は nnscratch の式を誤差 0 で再現し、Keras は上の式を
+再現する。デフォルトの $\varepsilon = 10^{-8}$ では両者の差は $2 \times 10^{-8}$ 程度なので、
+通常の学習に影響はない。検証コードは `reference/check_optimizer_equivalence.py`。
 
 ---
 

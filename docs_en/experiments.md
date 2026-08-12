@@ -243,6 +243,13 @@ nn::Model build_cnn(nn::Rng& rng) {
 
 ## Relationship between nnscratch / PyTorch / TensorFlow
 
+> Everything in this section is reproducible. [`reference/`](../reference/README.md)
+> trains this same network in numpy, PyTorch and TensorFlow from the *same*
+> initial weights, split and mini-batch order, and reports the measured gap;
+> `reference/check_optimizer_equivalence.py` identifies which closed-form update
+> each framework's optimizer actually implements. The claims below are stated
+> from those measurements, not from release notes.
+
 ### Where the three implementations stand
 
 PyTorch and TensorFlow **run exactly the same math as nnscratch**. The
@@ -318,21 +325,35 @@ does not).
 |---|---|---|---|
 | 1. Automatic differentiation | ○ | ○ | ○ |
 | 2. float64 vs float32 | ○ | ○ | ○ |
-| 3. Subtle internal-formula difference | **none** | ○ (formula shape differs) | △ ($\varepsilon$ placement differs) |
+| 3. Subtle internal-formula difference | **none** | ○ (formula shape differs, trajectory identical) | △ (TF only: $\varepsilon$ enters before bias correction) |
 | 4. Bundled features | weight_decay / clipping | same as left | + AMSGrad |
 
 **Why SGD has no difference (3)**: it holds no state (velocity or moment), so
 there is no room for implementation variation.
 
 **On Adam's (3)**: the skeleton and default values ($\beta_1=0.9, \beta_2=0.999, \varepsilon=10^{-8}$)
-match, but the placement of $\varepsilon$ differs.
+match, but $\varepsilon$ enters at a different point. **PyTorch is identical to
+nnscratch; TensorFlow/Keras is the one that differs.**
 
-$$\text{nnscratch / paper / TF}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}$$
+```math
+\text{nnscratch / PyTorch}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v}} + \varepsilon}
+```
 
-$$\text{PyTorch (default)}: \quad p \leftarrow p - \eta \cdot \frac{\hat{m}}{\sqrt{\hat{v} + \varepsilon}}$$
+```math
+\text{TensorFlow / Keras}: \quad \alpha_t = \eta\,\frac{\sqrt{1 - \beta_2^{\,t}}}{1 - \beta_1^{\,t}}, \qquad p \leftarrow p - \alpha_t \cdot \frac{m}{\sqrt{v} + \varepsilon}
+```
 
-The behavior changes when $\hat{v}$ is extremely small, but in ordinary training
-there is almost no difference.
+Keras applies $\varepsilon$ to the *un-corrected* second moment — the
+"$\hat\varepsilon$" of the Kingma–Ba paper, as its own documentation states.
+Algebraically that is $\eta \hat m / (\sqrt{\hat v} + \varepsilon / \sqrt{1 - \beta_2^{t}})$,
+so the effective epsilon is inflated in the early steps.
+
+Verified empirically against PyTorch 2.12 and TensorFlow 2.20 in float64: over
+four steps with an exaggerated $\varepsilon = 0.5$, PyTorch reproduces the
+nnscratch form to 0 error, while Keras reproduces the form above. With the
+default $\varepsilon = 10^{-8}$ the two forms differ by about $2 \times 10^{-8}$,
+so ordinary training is unaffected. The check is
+`reference/check_optimizer_equivalence.py`.
 
 ---
 

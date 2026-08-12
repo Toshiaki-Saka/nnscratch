@@ -10,6 +10,7 @@ nnscratch が読み書きするすべてのものの正確な仕様。同梱デ�
 - [cmp_*.csv](#cmp_csv)
 - [PGM 画像](#pgm-画像)
 - [出力をプロットする](#出力をプロットする)
+- [参照用エクスポート](#参照用エクスポート)
 
 ---
 
@@ -275,3 +276,30 @@ plt.xlabel("epoch"); plt.ylabel("test accuracy (%)"); plt.legend(); plt.show()
 
 どちらのファイルも数キロバイトなので、コードを書きたくなければ表計算ソフトで
 開いてもよい。
+
+---
+
+## 参照用エクスポート
+
+`export_reference` は 4 つ目のファイル群を `output/reference/` に書き出す。
+[`reference/`](../reference/README.md) にある PyTorch/TensorFlow 版が、
+nnscratch の実行を近似ではなく厳密に再現できるようにするためのものである。
+初期重みもシャッフルも、別のプラットフォームではシードから再生成できない
+（`std::normal_distribution` と `std::uniform_int_distribution` は移植性を
+持たない。[ARCHITECTURE.md](ARCHITECTURE.md#決定性) を参照）。
+
+| ファイル | 内容 |
+|---|---|
+| `split.txt` | `n_records` / `n_train` / `n_test` に続き、`digits.csv` のレコード順への 0 始まり添字を `train` と `test` のブロックで |
+| `<model>_config.txt` | `key value` 形式の行と、レイヤーごとの `layer <i> <type> <args...>` 行 |
+| `<model>_init_weights.txt` | `tensor <name> <rank> <dims...>` ヘッダに続けて、行優先の値を有効数字 17 桁で |
+| `<model>_batch_order.txt` | `epoch <n>` ヘッダに続けて `[0, n_train)` の置換 |
+| `<model>_curve_nnscratch.csv` | `learning_curve.csv` と同じ 4 列 |
+
+`<model>` は `mlp` または `cnn`。すべて空白区切りのプレーンテキストである。
+有効数字 17 桁は IEEE double を厳密に往復できる桁数なので、重みは言語の境界を
+損失なく越える。データセット自体はエクスポートしない。両側が `digits.csv` を
+読み、添字がどの行を取るかを指示する。
+
+これらはビルド生成物である。`output/` は gitignore されており、コミットせずに
+再生成する前提になっている。

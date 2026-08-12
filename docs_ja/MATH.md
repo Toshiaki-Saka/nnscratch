@@ -420,11 +420,14 @@ $\beta_2 = 0.999$ での最初のステップは $\sqrt{1000} \approx 31$ 倍ほ
 しまう。補正は $t$ が大きくなるにつれ消えていく。`Adam` がステップカウンタ `t_` を
 持ち、パラメータごとではなく `step()` の呼び出しごとに 1 増やすのはこのためである。
 
-**$\varepsilon$ の位置。** このライブラリは原論文および TensorFlow に倣い、平方根の
-*外側* に置く（$\eta \hat m / (\sqrt{\hat v} + \varepsilon)$）。PyTorch の既定は
-$\eta \hat m / \sqrt{\hat v + \varepsilon}$ である。両者が違う結果を与えるのは
-$\hat v$ が $\varepsilon^2$ よりはるかに小さいときだけである。
-[experiments.md](experiments.md) を参照。
+**$\varepsilon$ の位置。** このライブラリは平方根の外側、かつバイアス補正の *後* に
+置く（$\eta \hat m / (\sqrt{\hat v} + \varepsilon)$）。PyTorch もまったく同じである。
+一方 TensorFlow/Keras は補正前の 2 次モーメントに適用する。これは原論文の
+「$\hat\varepsilon$」にあたり、初期のステップで $\varepsilon$ を
+$1/\sqrt{1 - \beta_2^{t}}$ 倍に膨らませるのと等価である。既定の
+$\varepsilon = 10^{-8}$ では差は $10^{-8}$ 程度で、学習には影響しない。これは推測では
+なく実測で、`reference/check_optimizer_equivalence.py` が各フレームワークの更新を
+閉じた式で再現している。[experiments.md](experiments.md) を参照。
 
 ### パラメータごとの状態とポインタ同一性
 

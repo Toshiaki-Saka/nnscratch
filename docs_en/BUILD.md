@@ -91,7 +91,7 @@ cmake -S . -B build -DNNSCRATCH_WARNINGS_AS_ERRORS=OFF
 | `nnscratch` | library | The core. `STATIC` unless `BUILD_SHARED_LIBS=ON` |
 | `nnscratch::nnscratch` | alias | Use this name in `target_link_libraries` — it works identically whether the library is built in-tree or found with `find_package` |
 | `nnscratch_warnings` | `INTERFACE` | The warning flag set. Linked `PRIVATE` and wrapped in `$<BUILD_INTERFACE:...>`, so it never leaks into installed consumers |
-| `from_scratch`, `compare` | executables | Demos, gated on `NNSCRATCH_BUILD_APPS` |
+| `from_scratch`, `compare`, `export_reference` | executables | Demos and the reference exporter, gated on `NNSCRATCH_BUILD_APPS` |
 | `test_tensor`, `test_gradcheck`, `test_optimizer` | executables | Gated on `NNSCRATCH_BUILD_TESTS`, registered with CTest |
 
 `VERSION` and `SOVERSION` are set from `project(VERSION 0.1.0)`, so a shared
@@ -226,6 +226,14 @@ default `.`. Formats: [DATA_FORMATS.md](DATA_FORMATS.md).
 Runtimes are seconds: about 1 s for `from_scratch` (61 epochs) and about 6 s for
 `compare` (nine training runs) in a Release build. See
 [PERFORMANCE.md](PERFORMANCE.md).
+
+A third executable, `export_reference`, is not a demo — it dumps the split,
+the initial weights and the mini-batch order so the PyTorch/TensorFlow ports in
+[`reference/`](../reference/README.md) can reproduce a run exactly:
+
+```bash
+./build/export_reference          # writes output/reference/
+```
 
 ---
 

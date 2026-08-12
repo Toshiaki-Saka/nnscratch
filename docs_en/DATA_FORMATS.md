@@ -10,6 +10,7 @@ or trivially-parsed binary, so no library is needed on either side.
 - [cmp_*.csv](#cmp_csv)
 - [PGM images](#pgm-images)
 - [Plotting the outputs](#plotting-the-outputs)
+- [The reference export](#the-reference-export)
 
 ---
 
@@ -282,3 +283,31 @@ plt.xlabel("epoch"); plt.ylabel("test accuracy (%)"); plt.legend(); plt.show()
 
 Both files are small enough (a few kilobytes) to open in any spreadsheet if you
 would rather not write code.
+
+---
+
+## The reference export
+
+`export_reference` writes a fourth family of files, to `output/reference/`, so
+that the PyTorch/TensorFlow ports in [`reference/`](../reference/README.md) can
+reproduce an nnscratch run exactly rather than approximately. They exist because
+neither the initial weights nor the shuffles can be regenerated from a seed on
+another platform — `std::normal_distribution` and
+`std::uniform_int_distribution` are not portable
+([ARCHITECTURE.md](ARCHITECTURE.md#determinism)).
+
+| File | Contents |
+|---|---|
+| `split.txt` | `n_records` / `n_train` / `n_test`, then `train` and `test` blocks of 0-based indices into `digits.csv` record order |
+| `<model>_config.txt` | `key value` lines, plus one `layer <i> <type> <args...>` line per layer |
+| `<model>_init_weights.txt` | `tensor <name> <rank> <dims...>` headers, each followed by row-major values at 17 significant digits |
+| `<model>_batch_order.txt` | `epoch <n>` headers, each followed by a permutation of `[0, n_train)` |
+| `<model>_curve_nnscratch.csv` | the same four columns as `learning_curve.csv` |
+
+`<model>` is `mlp` or `cnn`. All of it is whitespace-delimited plain text; 17
+significant digits is what round-trips an IEEE double exactly, so weights cross
+the language boundary without loss. The dataset itself is not exported — both
+sides read `digits.csv` and the indices say which rows to take.
+
+These are build artifacts: `output/` is gitignored, and the files are meant to
+be regenerated rather than committed.
